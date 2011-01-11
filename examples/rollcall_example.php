@@ -5,7 +5,7 @@
  * (see https://github.com/educoder/rollcall)
  **/
 
-require_once 'PestXML.php';
+require_once '../PestXML.php';
 
 $pest = new PestXML('http://localhost:3000');
 
