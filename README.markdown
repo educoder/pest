@@ -1,5 +1,5 @@
-Pest - a REST client for PHP
-============================
+Pest
+====
 
 **Pest **is PHP client for (RESTful)[http://en.wikipedia.org/wiki/Representational_State_Transfer] 
 web services.
@@ -15,53 +15,49 @@ Basic Example
 Pest's get/post/put/delete() return the raw response body as a string.
 See the info on PestXML (below) if you're working with XML-based REST services.
 
-```php
-<?php
-require 'Pest.php';
+	<?php
+	require 'Pest.php';
 
-$pest = new Pest('http://example.com');
+	$pest = new Pest('http://example.com');
 
-$thing = $pest->get('/things');
+	$thing = $pest->get('/things');
 
-$thing = $pest->post('/things', 
-	array(
-		'name' => "Foo",
-		'colour' => "Red"
-	)
-);
+	$thing = $pest->post('/things', 
+		array(
+			'name' => "Foo",
+			'colour' => "Red"
+		)
+	);
 
-$thing = $pest->put('/things/15',
-	array(
-		'colour' => "Blue"
-	)
-);
+	$thing = $pest->put('/things/15',
+		array(
+			'colour' => "Blue"
+		)
+	);
 
-$pest->delete('/things/15');
+	$pest->delete('/things/15');
 
-?>
-```
+	?>
 
 Responses with error status codes (4xx and 5xx) raise exceptions.
 
-```php
-<?php
+	<?php
 
-try {
-	$thing = $pest->get('/things/18');
-} catch (Pest_NotFound $e) {
-	// 400
-	echo "Thing with ID 18 doesn't exist!";
-}
+	try {
+		$thing = $pest->get('/things/18');
+	} catch (Pest_NotFound $e) {
+		// 400
+		echo "Thing with ID 18 doesn't exist!";
+	}
 
-try {
-	$thing = $pest->post('/things',  array('colour' => "Red"));
-} catch (Pest_InvalidRecord $e) {
-	// 422
-	echo "Data for Thing is invalid because: ".$e->getMessage();
-}
+	try {
+		$thing = $pest->post('/things',  array('colour' => "Red"));
+	} catch (Pest_InvalidRecord $e) {
+		// 422
+		echo "Data for Thing is invalid because: ".$e->getMessage();
+	}
 
-?>
-```
+	?>
 
 PestXML and More Examples
 ----------------------------
@@ -70,21 +66,19 @@ PestXML and More Examples
 return XML data. Rather than returning the raw response body as a string, PestXML will
 try to parse the service's response into a [SimpleXML](http://php.net/manual/en/book.simplexml.php) object.
 
-```php
-<?php
-require 'PestXML.php';
+	<?php
+	require 'PestXML.php';
 
-$pest = new Pest('http://example.com');
+	$pest = new Pest('http://example.com');
 
-$things = $pest->get('/things.xml');
+	$things = $pest->get('/things.xml');
 
-$colours = $things->xpath('//colour');
-foreach($colours as $colour) {
-	echo $colour."\n";
-}
+	$colours = $things->xpath('//colour');
+	foreach($colours as $colour) {
+		echo $colour."\n";
+	}
 
-?>
-```
+	?>
 
 Much more detailed examples are available in the `examples` directory.
 
