@@ -80,7 +80,10 @@ try to parse the service's response into a [SimpleXML](http://php.net/manual/en/
 
 	?>
 
-Much more detailed examples are available in the `examples` directory.
+Much more detailed examples are available in the `examples` directory:
+
+* [Rollcall Example](http://github.com/educoder/pest/blob/master/examples/rollcall_example.php)
+* [OpenStreetMap Example](http://github.com/educoder/pest/blob/master/examples/open_street_map_example.php)
 
 
 TODO
