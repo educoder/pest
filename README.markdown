@@ -59,8 +59,8 @@ Responses with error status codes (4xx and 5xx) raise exceptions.
 
 	?>
 
-PestXML and More Examples
-----------------------------
+PestXML
+-------
 
 **PestXML** is an XML-centric version of Pest, specifically targeted at REST services that 
 return XML data. Rather than returning the raw response body as a string, PestXML will
