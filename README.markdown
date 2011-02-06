@@ -16,6 +16,7 @@ Pest's get/post/put/delete() return the raw response body as a string.
 See the info on PestXML (below) if you're working with XML-based REST services.
 
 ```php
+
   <?php
   require 'Pest.php';
 
@@ -39,11 +40,13 @@ See the info on PestXML (below) if you're working with XML-based REST services.
   $pest->delete('/things/15');
 
   ?>
+
 ```
 
 Responses with error status codes (4xx and 5xx) raise exceptions.
 
 ```php
+
   <?php
 
   try {
@@ -61,6 +64,7 @@ Responses with error status codes (4xx and 5xx) raise exceptions.
   }
 
   ?>
+
 ```
 
 PestXML
