@@ -15,57 +15,49 @@ Basic Example
 Pest's get/post/put/delete() return the raw response body as a string.
 See the info on PestXML (below) if you're working with XML-based REST services.
 
-```php
+    <?php
+    require 'Pest.php';
 
-  <?php
-  require 'Pest.php';
+    $pest = new Pest('http://example.com');
 
-  $pest = new Pest('http://example.com');
+    $thing = $pest->get('/things');
 
-  $thing = $pest->get('/things');
+    $thing = $pest->post('/things', 
+    	array(
+    		'name' => "Foo",
+    		'colour' => "Red"
+    	)
+    );
 
-  $thing = $pest->post('/things', 
-  	array(
-  		'name' => "Foo",
-  		'colour' => "Red"
-  	)
-  );
+    $thing = $pest->put('/things/15',
+    	array(
+    		'colour' => "Blue"
+    	)
+    );
 
-  $thing = $pest->put('/things/15',
-  	array(
-  		'colour' => "Blue"
-  	)
-  );
+    $pest->delete('/things/15');
 
-  $pest->delete('/things/15');
-
-  ?>
-
-```
+    ?>
 
 Responses with error status codes (4xx and 5xx) raise exceptions.
 
-```php
+    <?php
 
-  <?php
+    try {
+    	$thing = $pest->get('/things/18');
+    } catch (Pest_NotFound $e) {
+    	// 400
+    	echo "Thing with ID 18 doesn't exist!";
+    }
 
-  try {
-  	$thing = $pest->get('/things/18');
-  } catch (Pest_NotFound $e) {
-  	// 400
-  	echo "Thing with ID 18 doesn't exist!";
-  }
+    try {
+    	$thing = $pest->post('/things',  array('colour' => "Red"));
+    } catch (Pest_InvalidRecord $e) {
+    	// 422
+    	echo "Data for Thing is invalid because: ".$e->getMessage();
+    }
 
-  try {
-  	$thing = $pest->post('/things',  array('colour' => "Red"));
-  } catch (Pest_InvalidRecord $e) {
-  	// 422
-  	echo "Data for Thing is invalid because: ".$e->getMessage();
-  }
-
-  ?>
-
-```
+    ?>
 
 PestXML
 -------
