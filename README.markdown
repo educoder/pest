@@ -46,7 +46,7 @@ Responses with error status codes (4xx and 5xx) raise exceptions.
     try {
     	$thing = $pest->get('/things/18');
     } catch (Pest_NotFound $e) {
-    	// 400
+    	// 404
     	echo "Thing with ID 18 doesn't exist!";
     }
 
