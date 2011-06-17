@@ -116,12 +116,12 @@ class Pest {
       'url' => $url
     );
     
-    if ($opts[CURLOPT_CUSTOMREQUEST])
+    if (isset($opts[CURLOPT_CUSTOMREQUEST]))
       $this->last_request['method'] = $opts[CURLOPT_CUSTOMREQUEST];
     else
       $this->last_request['method'] = 'GET';
     
-    if ($opts[CURLOPT_POSTFIELDS])
+    if (isset($opts[CURLOPT_POSTFIELDS]))
       $this->last_request['data'] = $opts[CURLOPT_POSTFIELDS];
     
     return $curl;
