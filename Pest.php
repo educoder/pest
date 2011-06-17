@@ -106,7 +106,7 @@ class Pest {
   }
 
   
-  private function prepRequest($opts, $url) {
+  protected function prepRequest($opts, $url) {
     $curl = curl_init($url);
     
     foreach ($opts as $opt => $val)
