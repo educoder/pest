@@ -90,14 +90,14 @@ class Pest {
     return $this->last_response['meta']['http_code'];
   }
   
-  public function processBody($body) {
+  protected function processBody($body) {
     // Override this in classes that extend Pest.
     // The body of every GET/POST/PUT/DELETE response goes through 
     // here prior to being returned.
     return $body;
   }
   
-  public function processError($body) {
+  protected function processError($body) {
     // Override this in classes that extend Pest.
     // The body of every erroneous (non-2xx/3xx) GET/POST/PUT/DELETE  
     // response goes through here prior to being used as the 'message'
