@@ -80,6 +80,8 @@ try to parse the service's response into a [SimpleXML](http://php.net/manual/en/
 
 	?>
 
+Similarly, **PestJSON** is a JSON-centric version of Pest.
+
 Much more detailed examples are available in the `examples` directory:
 
 * [Rollcall Example](http://github.com/educoder/pest/blob/master/examples/rollcall_example.php)
