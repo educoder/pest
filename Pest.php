@@ -1,4 +1,4 @@
-<?php
+<?php // -*- c-basic-offset: 2 -*-
 
 /**
  * Pest is a REST client for PHP.
@@ -15,7 +15,7 @@ class Pest {
   	CURLOPT_FOLLOWLOCATION => true,  // follow redirects, Location: headers
   	CURLOPT_MAXREDIRS      => 10     // but dont redirect more than 10 times
   );
-  
+
   public $base_url;
   
   public $last_response;
@@ -30,7 +30,7 @@ class Pest {
   }
   
   public function get($url) {
-    $curl = $this->prepRequest($this->curl_opts, $this->base_url . $url);
+    $curl = $this->prepRequest($this->curl_opts, $url);
     $body = $this->doRequest($curl);
     
     $body = $this->processBody($body);
@@ -46,7 +46,7 @@ class Pest {
     $curl_opts[CURLOPT_HTTPHEADER] = array('Content-Length: '.strlen($data));
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
     
-    $curl = $this->prepRequest($curl_opts, $this->base_url . $url);
+    $curl = $this->prepRequest($curl_opts, $url);
     $body = $this->doRequest($curl);
     
     $body = $this->processBody($body);
@@ -62,7 +62,7 @@ class Pest {
     $curl_opts[CURLOPT_HTTPHEADER] = array('Content-Length: '.strlen($data));
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
     
-    $curl = $this->prepRequest($curl_opts, $this->base_url . $url);
+    $curl = $this->prepRequest($curl_opts, $url);
     $body = $this->doRequest($curl);
     
     $body = $this->processBody($body);
@@ -74,7 +74,7 @@ class Pest {
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'DELETE';
     
-    $curl = $this->prepRequest($curl_opts, $this->base_url . $url);
+    $curl = $this->prepRequest($curl_opts, $url);
     $body = $this->doRequest($curl);
     
     $body = $this->processBody($body);
@@ -107,6 +107,9 @@ class Pest {
 
   
   protected function prepRequest($opts, $url) {
+    if (strncmp($url, $this->base_url, strlen($this->base_url)) != 0) {
+      $url = $this->base_url . $url;
+    }
     $curl = curl_init($url);
     
     foreach ($opts as $opt => $val)
