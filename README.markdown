@@ -1,7 +1,7 @@
 Pest
 ====
 
-**Pest **is PHP client for [RESTful](http://en.wikipedia.org/wiki/Representational_State_Transfer) 
+**Pest** is PHP client for [RESTful](http://en.wikipedia.org/wiki/Representational_State_Transfer) 
 web services.
 
 Unlike [Zend_Rest_Client](http://framework.zend.com/manual/en/zend.rest.client.html), which is not 
