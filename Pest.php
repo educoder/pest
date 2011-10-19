@@ -38,12 +38,13 @@ class Pest {
     return $body;
   }
   
-  public function post($url, $data) {
-    $data = (is_array($data)) ? http_build_query($data) : $data; 
-    
+  public function post($url, $data, $headers=array()) {
+    $data = (is_array($data)) ? http_build_query($data) : $data;
+        
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
-    $curl_opts[CURLOPT_HTTPHEADER] = array('Content-Length: '.strlen($data));
+    $headers[] = 'Content-Length: '.strlen($data);
+    $curl_opts[CURLOPT_HTTPHEADER] = $headers;
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
     
     $curl = $this->prepRequest($curl_opts, $url);
@@ -54,12 +55,13 @@ class Pest {
     return $body;
   }
   
-  public function put($url, $data) {
+  public function put($url, $data, $headers=array()) {
     $data = (is_array($data)) ? http_build_query($data) : $data; 
     
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PUT';
-    $curl_opts[CURLOPT_HTTPHEADER] = array('Content-Length: '.strlen($data));
+    $headers[] = 'Content-Length: '.strlen($data);
+    $curl_opts[CURLOPT_HTTPHEADER] = $headers;
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
     
     $curl = $this->prepRequest($curl_opts, $url);
