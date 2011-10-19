@@ -25,12 +25,12 @@ require_once 'Pest.php';
  */
 class PestJSON extends Pest
 {
-  public function post($url, $data) {
-    return parent::post($url, json_encode($data));
+  public function post($url, $data, $headers) {
+    return parent::post($url, json_encode($data), $headers);
   }
   
-  public function put($url, $data) {
-    return parent::put($url, json_encode($data));
+  public function put($url, $data, $headers) {
+    return parent::put($url, json_encode($data), $headers);
   }
 
   protected function prepRequest($opts, $url) {
