@@ -34,6 +34,7 @@ class PestJSON extends Pest
   }
 
   protected function prepRequest($opts, $url) {
+    $opts[CURLOPT_HTTPHEADER][] = 'Accept: application/json';
     $opts[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
     return parent::prepRequest($opts, $url);
   }
