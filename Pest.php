@@ -29,6 +29,11 @@ class Pest {
     $this->base_url = $base_url;
   }
   
+  public function setupBasicAuth($user, $pass) {
+  	$this->curl_opts[CURLOPT_HTTPAUTH] = 'CURLAUTH_BASIC';
+  	$this->curl_opts[CURLOPT_USERPWD] = $user . ":" . $pass;
+  }
+  
   public function get($url) {
     $curl = $this->prepRequest($this->curl_opts, $url);
     $body = $this->doRequest($curl);
