@@ -21,6 +21,8 @@ class Pest {
   public $last_response;
   public $last_request;
   
+  public $exception_handling = true;
+  
   public function __construct($base_url) {
     if (!function_exists('curl_init')) {
   	    throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
@@ -153,7 +155,10 @@ class Pest {
     return $body;
   }
   
-  private function checkLastResponseForError() {
+  protected function checkLastResponseForError() {
+    if ( !$exception_handling)
+      return;
+      
     $meta = $this->last_response['meta'];
     $body = $this->last_response['body'];
     
