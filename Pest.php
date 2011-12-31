@@ -156,7 +156,7 @@ class Pest {
   }
   
   protected function checkLastResponseForError() {
-    if ( !$exception_handling)
+    if ( !$this->exception_handling)
       return;
       
     $meta = $this->last_response['meta'];
