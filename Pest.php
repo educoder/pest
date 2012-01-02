@@ -21,6 +21,8 @@ class Pest {
   public $last_response;
   public $last_request;
   
+  public $exception_handling = true;
+  
   public function __construct($base_url) {
     if (!function_exists('curl_init')) {
   	    throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
@@ -29,9 +31,10 @@ class Pest {
     $this->base_url = $base_url;
   }
   
-  public function setupBasicAuth($user, $pass) {
-  	$this->curl_opts[CURLOPT_HTTPAUTH] = 'CURLAUTH_BASIC';
-  	$this->curl_opts[CURLOPT_USERPWD] = $user . ":" . $pass;
+  // $auth can be 'basic' or 'digest'
+  public function setupAuth($user, $pass, $auth = 'basic') {
+    $this->curl_opts[CURLOPT_HTTPAUTH] = constant('CURLAUTH_'.strtoupper($auth));
+    $this->curl_opts[CURLOPT_USERPWD] = $user . ":" . $pass;
   }
   
   public function get($url) {
@@ -153,7 +156,10 @@ class Pest {
     return $body;
   }
   
-  private function checkLastResponseForError() {
+  protected function checkLastResponseForError() {
+    if ( !$this->exception_handling)
+      return;
+      
     $meta = $this->last_response['meta'];
     $body = $this->last_response['body'];
     
