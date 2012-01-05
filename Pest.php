@@ -21,7 +21,7 @@ class Pest {
   public $last_response;
   public $last_request;
   
-  public $exception_handling = true;
+  public $throw_exceptions = true;
   
   public function __construct($base_url) {
     if (!function_exists('curl_init')) {
@@ -157,7 +157,7 @@ class Pest {
   }
   
   protected function checkLastResponseForError() {
-    if ( !$this->exception_handling)
+    if ( !$this->throw_exceptions)
       return;
       
     $meta = $this->last_response['meta'];
