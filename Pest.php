@@ -37,7 +37,10 @@ class Pest {
     $this->curl_opts[CURLOPT_USERPWD] = $user . ":" . $pass;
   }
   
-  public function get($url) {
+  public function get($url, $params=array()) {
+    $params = (is_array($params)) ? http_build_query($params) : $params;
+    $url = $url.'?'.$params;
+
     $curl = $this->prepRequest($this->curl_opts, $url);
     $body = $this->doRequest($curl);
     
