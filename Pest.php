@@ -12,7 +12,7 @@ class Pest {
   public $curl_opts = array(
   	CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
   	CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
-  	CURLOPT_FOLLOWLOCATION => true,  // follow redirects, Location: headers
+  	CURLOPT_FOLLOWLOCATION => false,  // follow redirects, Location: headers
   	CURLOPT_MAXREDIRS      => 10     // but dont redirect more than 10 times
   );
 
@@ -26,6 +26,11 @@ class Pest {
   public function __construct($base_url) {
     if (!function_exists('curl_init')) {
   	    throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
+  	}
+  	
+  	// only enable CURLOPT_FOLLOWLOCATION if safe_mode and open_base_dir are not in use
+  	if(ini_get('open_basedir') == '' && strtolower(ini_get('safe_mode')) == 'off') {
+  	  $this->curl_opts['CURLOPT_FOLLOWLOCATION'] = true;
   	}
     
     $this->base_url = $base_url;
