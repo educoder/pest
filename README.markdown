@@ -13,7 +13,8 @@ Basic Example
 -------------
 
 Pest's get/post/put/delete() return the raw response body as a string.
-See the info on PestXML (below) if you're working with XML-based REST services.
+See the info on PestXML (below) if you're working with XML-based REST services and
+PestJSON if you're working with JSON.
 
     <?php
     require 'Pest.php';
