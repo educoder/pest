@@ -20,6 +20,7 @@ class Pest {
   
   public $last_response;
   public $last_request;
+  public $last_headers;
   
   public $throw_exceptions = true;
   
@@ -29,6 +30,10 @@ class Pest {
   	}
     
     $this->base_url = $base_url;
+    
+    // The callback to handle return headers
+    // Using PHP 5.2, it cannot be initialised in the static context
+    $this->curl_opts[CURLOPT_HEADERFUNCTION] = array($this, 'handle_header');
   }
   
   // $auth can be 'basic' or 'digest'
@@ -100,6 +105,18 @@ class Pest {
     return $this->last_response['meta']['http_code'];
   }
   
+  /**
+   * Return the last response header (case insensitive) or NULL if not present.
+   * HTTP allows empty headers (e.g. RFC 2616, Section 14.23), thus is_null()
+   * and not negation or empty() should be used.
+   */
+  public function lastHeader($header) {
+    if (empty($this->last_headers[strtolower($header)])) {
+      return NULL;
+    }
+    return $this->last_headers[strtolower($header)];
+  }
+  
   protected function processBody($body) {
     // Override this in classes that extend Pest.
     // The body of every GET/POST/PUT/DELETE response goes through 
@@ -140,7 +157,16 @@ class Pest {
     return $curl;
   }
   
+  private function handle_header($ch, $str) {
+    if (preg_match('/([^:]+):\s(.+)/m', $str, $match) ) {
+      $this->last_headers[strtolower($match[1])] = trim($match[2]);
+    }
+    return strlen($str);
+  }
+
   private function doRequest($curl) {
+    $this->last_headers = array();
+    
     $body = curl_exec($curl);
     $meta = curl_getinfo($curl);
     
