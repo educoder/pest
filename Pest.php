@@ -42,6 +42,16 @@ class Pest {
     $this->curl_opts[CURLOPT_USERPWD] = $user . ":" . $pass;
   }
   
+  // Enable a proxy
+  public function setupProxy($host, $port, $user = NULL, $pass = NULL) {
+    $this->curl_opts[CURLOPT_PROXYTYPE] = 'HTTP';
+    $this->curl_opts[CURLOPT_PROXY] = $host;
+    $this->curl_opts[CURLOPT_PROXYPORT] = $port;
+    if ($user && $pass) {
+      $this->curl_opts[CURLOPT_PROXYUSERPWD] = $user . ":" . $pass;
+    }
+  }
+  
   public function get($url) {
     $curl = $this->prepRequest($this->curl_opts, $url);
     $body = $this->doRequest($curl);
