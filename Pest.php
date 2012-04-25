@@ -100,6 +100,23 @@ class Pest {
     return $body;
   }
   
+    public function patch($url, $data, $headers=array()) {
+    $data = (is_array($data)) ? http_build_query($data) : $data; 
+    
+    $curl_opts = $this->curl_opts;
+    $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PATCH';
+    $headers[] = 'Content-Length: '.strlen($data);
+    $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+    $curl_opts[CURLOPT_POSTFIELDS] = $data;
+    
+    $curl = $this->prepRequest($curl_opts, $url);
+    $body = $this->doRequest($curl);
+    
+    $body = $this->processBody($body);
+    
+    return $body;
+  }
+  
   public function delete($url) {
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'DELETE';
