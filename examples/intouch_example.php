@@ -21,7 +21,7 @@ $sendernumber = "IntouchAPI"; // Must be a valid sendernumber set up for your ac
  // Setting up Pest with URL for the Intouch API and basic HTTP authentication 
 require_once '../Pest.php';
 $pest = new Pest('http://intouchapi.pswin.com/1/');
-$pest->setupBasicAuth($user ."@". $logindomain, $password);
+$pest->setupAuth($user ."@". $logindomain, $password);
 $pest->curl_opts[CURLOPT_FOLLOWLOCATION] = false; // Not supported on hosts running safe_mode!
 
 
