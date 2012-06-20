@@ -1,5 +1,7 @@
 <?php // -*- c-basic-offset: 2 -*-
 
+namespace Pest;
+
 /**
  * Pest is a REST client for PHP.
  *
@@ -268,7 +270,7 @@ class Pest {
 }
 
 
-class Pest_Exception extends Exception { }
+class Pest_Exception extends \Exception { }
 class Pest_UnknownResponse extends Pest_Exception { }
 
 /* 401-499 */ class Pest_ClientError extends Pest_Exception {}
