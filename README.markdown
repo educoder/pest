@@ -1,7 +1,7 @@
 Pest
 ====
 
-**Pest** is PHP client for [RESTful](http://en.wikipedia.org/wiki/Representational_State_Transfer) 
+**Pest** is a PHP client library for [RESTful](http://en.wikipedia.org/wiki/Representational_State_Transfer) 
 web services.
 
 Unlike [Zend_Rest_Client](http://framework.zend.com/manual/en/zend.rest.client.html), which is not 
@@ -13,7 +13,8 @@ Basic Example
 -------------
 
 Pest's get/post/put/delete() return the raw response body as a string.
-See the info on PestXML (below) if you're working with XML-based REST services.
+See the info on PestXML (below) if you're working with XML-based REST services and
+PestJSON if you're working with JSON.
 
     <?php
     require 'Pest.php';

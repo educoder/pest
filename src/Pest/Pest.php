@@ -14,7 +14,7 @@ class Pest {
   public $curl_opts = array(
   	CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
   	CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
-  	CURLOPT_FOLLOWLOCATION => true,  // follow redirects, Location: headers
+  	CURLOPT_FOLLOWLOCATION => false,  // follow redirects, Location: headers
   	CURLOPT_MAXREDIRS      => 10     // but dont redirect more than 10 times
   );
 
@@ -22,6 +22,7 @@ class Pest {
   
   public $last_response;
   public $last_request;
+  public $last_headers;
   
   public $throw_exceptions = true;
   
@@ -29,14 +30,33 @@ class Pest {
     if (!function_exists('curl_init')) {
   	    throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
   	}
+  	
+  	// only enable CURLOPT_FOLLOWLOCATION if safe_mode and open_base_dir are not in use
+  	if(ini_get('open_basedir') == '' && strtolower(ini_get('safe_mode')) == 'off') {
+  	  $this->curl_opts['CURLOPT_FOLLOWLOCATION'] = true;
+  	}
     
     $this->base_url = $base_url;
+    
+    // The callback to handle return headers
+    // Using PHP 5.2, it cannot be initialised in the static context
+    $this->curl_opts[CURLOPT_HEADERFUNCTION] = array($this, 'handle_header');
   }
   
   // $auth can be 'basic' or 'digest'
   public function setupAuth($user, $pass, $auth = 'basic') {
     $this->curl_opts[CURLOPT_HTTPAUTH] = constant('CURLAUTH_'.strtoupper($auth));
     $this->curl_opts[CURLOPT_USERPWD] = $user . ":" . $pass;
+  }
+  
+  // Enable a proxy
+  public function setupProxy($host, $port, $user = NULL, $pass = NULL) {
+    $this->curl_opts[CURLOPT_PROXYTYPE] = 'HTTP';
+    $this->curl_opts[CURLOPT_PROXY] = $host;
+    $this->curl_opts[CURLOPT_PROXYPORT] = $port;
+    if ($user && $pass) {
+      $this->curl_opts[CURLOPT_PROXYUSERPWD] = $user . ":" . $pass;
+    }
   }
   
   public function get($url) {
@@ -82,6 +102,23 @@ class Pest {
     return $body;
   }
   
+    public function patch($url, $data, $headers=array()) {
+    $data = (is_array($data)) ? http_build_query($data) : $data; 
+    
+    $curl_opts = $this->curl_opts;
+    $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PATCH';
+    $headers[] = 'Content-Length: '.strlen($data);
+    $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+    $curl_opts[CURLOPT_POSTFIELDS] = $data;
+    
+    $curl = $this->prepRequest($curl_opts, $url);
+    $body = $this->doRequest($curl);
+    
+    $body = $this->processBody($body);
+    
+    return $body;
+  }
+  
   public function delete($url) {
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'DELETE';
@@ -100,6 +137,18 @@ class Pest {
   
   public function lastStatus() {
     return $this->last_response['meta']['http_code'];
+  }
+  
+  /**
+   * Return the last response header (case insensitive) or NULL if not present.
+   * HTTP allows empty headers (e.g. RFC 2616, Section 14.23), thus is_null()
+   * and not negation or empty() should be used.
+   */
+  public function lastHeader($header) {
+    if (empty($this->last_headers[strtolower($header)])) {
+      return NULL;
+    }
+    return $this->last_headers[strtolower($header)];
   }
   
   protected function processBody($body) {
@@ -142,7 +191,16 @@ class Pest {
     return $curl;
   }
   
+  private function handle_header($ch, $str) {
+    if (preg_match('/([^:]+):\s(.+)/m', $str, $match) ) {
+      $this->last_headers[strtolower($match[1])] = trim($match[2]);
+    }
+    return strlen($str);
+  }
+
   private function doRequest($curl) {
+    $this->last_headers = array();
+    
     $body = curl_exec($curl);
     $meta = curl_getinfo($curl);
     
