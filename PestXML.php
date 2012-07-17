@@ -30,9 +30,10 @@ class PestXML extends Pest {
     if (!$xml) {
       $err = "Couldn't parse XML response because:\n";
       $xml_errors = libxml_get_errors();
+      libxml_clear_errors();
       if(!empty($xml_errors))
       {
-        foreach(libxml_get_errors() as $xml_err)
+        foreach($xml_errors as $xml_err)
           $err .= "\n    - " . $xml_err->message;
         $err .= "\nThe response was:\n";
         $err .= $body;
