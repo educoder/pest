@@ -7,7 +7,7 @@
 
 require_once '../PestXML.php';
 
-$pest = new PestXML('http://localhost:3000');
+$pest = new \Pest\PestXML('http://localhost:3000');
 
 // Retrieve and iterate over the list of all Users
 $users = $pest->get('/users.xml');

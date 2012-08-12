@@ -7,7 +7,7 @@
 
 require_once '../PestXML.php';
 
-$pest = new PestXML('http://api.openstreetmap.org/api/0.6');
+$pest = new \Pest\PestXML('http://api.openstreetmap.org/api/0.6');
 
 // Retrieve map data for the University of Toronto campus
 $map = $pest->get('/map?bbox=-79.39997,43.65827,-79.39344,43.66903');
