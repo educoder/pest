@@ -1,31 +1,34 @@
 <?php // -*- c-basic-offset: 2 -*-
 
 /**
- * Pest is a REST client for PHP.
- *
- * See http://github.com/educoder/pest for details.
- *
- * This code is licensed for use, modification, and distribution
- * under the terms of the MIT License (see http://en.wikipedia.org/wiki/MIT_License)
- */
-class Pest {
+* Pest is a REST client for PHP.
+*
+* See http://github.com/educoder/pest for details.
+*
+* This code is licensed for use, modification, and distribution
+* under the terms of the MIT License (see http://en.wikipedia.org/wiki/MIT_License)
+*/
+class Pest{
   public $curl_opts = array(
-  	CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
+    CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
   	CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
-  	CURLOPT_FOLLOWLOCATION => false,  // follow redirects, Location: headers
+  	CURLOPT_FOLLOWLOCATION => false, // follow redirects, Location: headers
   	CURLOPT_MAXREDIRS      => 10     // but dont redirect more than 10 times
   );
-
-  public $base_url;
   
+  public $base_url;
   public $last_response;
   public $last_request;
   public $last_headers;
-  
+
   public $throw_exceptions = true;
-  
-  public function __construct($base_url) {
-    if (!function_exists('curl_init')) {
+  public $apikey = "";
+  public $token  = "";
+
+  /**/
+  public function __construct($base_url)
+  {
+    if (!function_exists('curl_init')){
   	    throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
   	}
   	
@@ -41,48 +44,82 @@ class Pest {
     $this->curl_opts[CURLOPT_HEADERFUNCTION] = array($this, 'handle_header');
   }
   
-  // $auth can be 'basic' or 'digest'
-  public function setupAuth($user, $pass, $auth = 'basic') {
+  /*
+  *  $apikey is string like 7c72ee2b1111a09865a65e21f5d728d973e43777
+  */
+  public function setApikey($apikey)
+  {
+     $this->apikey = $apikey;
+  }
+  
+  /*
+  *  apikey is send to rest service and rest service return the token
+  *  $token is a string like KGbyJtTUkN1QInfxpERAKV29rKCIa8uGMbEz1hyxS9is7Fpps2yZj5XMbj14
+  */
+  public function setToken($token)
+  {
+    $this->token = $token;
+  }
+  
+  /**/
+  public function setHeaders($headers=array()) 
+  {
+     $this->curl_opts[CURLOPT_HTTPHEADER] = $headers;
+  }
+  
+  /*
+  *  $auth can be 'basic' or 'digest'
+  */
+  public function setupAuth($user, $pass, $auth = 'basic')
+  {
     $this->curl_opts[CURLOPT_HTTPAUTH] = constant('CURLAUTH_'.strtoupper($auth));
     $this->curl_opts[CURLOPT_USERPWD] = $user . ":" . $pass;
   }
-  
-  // Enable a proxy
-  public function setupProxy($host, $port, $user = NULL, $pass = NULL) {
+
+  /*
+  * Enable a proxy
+  */
+  public function setupProxy($host, $port, $user = NULL, $pass = NULL) 
+  {
     $this->curl_opts[CURLOPT_PROXYTYPE] = 'HTTP';
     $this->curl_opts[CURLOPT_PROXY] = $host;
     $this->curl_opts[CURLOPT_PROXYPORT] = $port;
-    if ($user && $pass) {
+    
+    if($user && $pass){
       $this->curl_opts[CURLOPT_PROXYUSERPWD] = $user . ":" . $pass;
     }
   }
   
-  public function get($url) {
-    $curl = $this->prepRequest($this->curl_opts, $url);
-    $body = $this->doRequest($curl);
-    
-    $body = $this->processBody($body);
-    
-    return $body;
+  /**/
+  public function get($url)
+  {
+     $curl = $this->prepRequest($this->curl_opts, $url);
+     $body = $this->doRequest($curl);
+     
+     $body = $this->processBody($body);
+     
+     return $body;
   }
-  
-  public function post($url, $data, $headers=array()) {
-    $data = (is_array($data)) ? http_build_query($data) : $data;
-        
+
+  /**/
+  public function post($url, $data, $headers=array()) 
+  {
+    $data = (is_array($data)) ? http_build_query($data):$data;
+    $headers[] = 'Content-Length: '.strlen($data);
+    
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
-    $headers[] = 'Content-Length: '.strlen($data);
-    $curl_opts[CURLOPT_HTTPHEADER] = $headers;
-    $curl_opts[CURLOPT_POSTFIELDS] = $data;
+    $curl_opts[CURLOPT_HTTPHEADER]    = $headers;
+    $curl_opts[CURLOPT_POSTFIELDS]    = $data;
     
     $curl = $this->prepRequest($curl_opts, $url);
     $body = $this->doRequest($curl);
-    
     $body = $this->processBody($body);
     
     return $body;
   }
-  
+
+  /**/
   public function put($url, $data, $headers=array()) {
     $data = (is_array($data)) ? http_build_query($data) : $data; 
     
@@ -99,8 +136,10 @@ class Pest {
     
     return $body;
   }
-  
-    public function patch($url, $data, $headers=array()) {
+
+  /**/
+  public function patch($url, $data, $headers=array()) 
+  {
     $data = (is_array($data)) ? http_build_query($data) : $data; 
     
     $curl_opts = $this->curl_opts;
@@ -116,7 +155,8 @@ class Pest {
     
     return $body;
   }
-  
+
+  /**/
   public function delete($url) {
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'DELETE';
@@ -128,11 +168,13 @@ class Pest {
     
     return $body;
   }
-  
+
+  /**/
   public function lastBody() {
     return $this->last_response['body'];
   }
-  
+
+  /**/
   public function lastStatus() {
     return $this->last_response['meta']['http_code'];
   }
@@ -143,19 +185,22 @@ class Pest {
    * and not negation or empty() should be used.
    */
   public function lastHeader($header) {
-    if (empty($this->last_headers[strtolower($header)])) {
+    if(empty($this->last_headers[strtolower($header)]))
+    {
       return NULL;
     }
     return $this->last_headers[strtolower($header)];
   }
-  
+
+  /**/
   protected function processBody($body) {
     // Override this in classes that extend Pest.
     // The body of every GET/POST/PUT/DELETE response goes through 
     // here prior to being returned.
     return $body;
   }
-  
+
+  /**/
   protected function processError($body) {
     // Override this in classes that extend Pest.
     // The body of every erroneous (non-2xx/3xx) GET/POST/PUT/DELETE  
@@ -163,32 +208,37 @@ class Pest {
     // of the resulting Pest_Exception
     return $body;
   }
-
   
-  protected function prepRequest($opts, $url) {
-    if (strncmp($url, $this->base_url, strlen($this->base_url)) != 0) {
-      $url = $this->base_url . $url;
-    }
-    $curl = curl_init($url);
+  /**/
+  protected function prepRequest($opts, $url) 
+  {
+     if (strncmp($url, $this->base_url, strlen($this->base_url)) != 0) {
+       $url = $this->base_url . $url;
+     }
+     
+     $curl = curl_init($url);
+     
+     foreach($opts as $opt => $val)
+     {
+       curl_setopt($curl, $opt, $val);
+     }
+     
+     $this->last_request = array(
+       'url' => $url
+     );
+     
+     if (isset($opts[CURLOPT_CUSTOMREQUEST]))
+       $this->last_request['method'] = $opts[CURLOPT_CUSTOMREQUEST];
+     else
+       $this->last_request['method'] = 'GET';
     
-    foreach ($opts as $opt => $val)
-      curl_setopt($curl, $opt, $val);
-      
-    $this->last_request = array(
-      'url' => $url
-    );
-    
-    if (isset($opts[CURLOPT_CUSTOMREQUEST]))
-      $this->last_request['method'] = $opts[CURLOPT_CUSTOMREQUEST];
-    else
-      $this->last_request['method'] = 'GET';
-    
-    if (isset($opts[CURLOPT_POSTFIELDS]))
-      $this->last_request['data'] = $opts[CURLOPT_POSTFIELDS];
-    
-    return $curl;
+     if (isset($opts[CURLOPT_POSTFIELDS]))
+       $this->last_request['data'] = $opts[CURLOPT_POSTFIELDS];
+     
+     return $curl;
   }
-  
+
+  /**/
   private function handle_header($ch, $str) {
     if (preg_match('/([^:]+):\s(.+)/m', $str, $match) ) {
       $this->last_headers[strtolower($match[1])] = trim($match[2]);
@@ -196,6 +246,7 @@ class Pest {
     return strlen($str);
   }
 
+  /**/
   private function doRequest($curl) {
     $this->last_headers = array();
     
@@ -213,7 +264,8 @@ class Pest {
     
     return $body;
   }
-  
+
+  /**/
   protected function checkLastResponseForError() {
     if ( !$this->throw_exceptions)
       return;
