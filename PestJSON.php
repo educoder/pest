@@ -25,21 +25,51 @@ require_once 'Pest.php';
  */
 class PestJSON extends Pest
 {
+
+  /*
+  *
+  */
   public function post($url, $data, $headers=array()) {
     return parent::post($url, json_encode($data), $headers);
   }
-  
+
+  /*
+  *
+  */
   public function put($url, $data, $headers=array()) {
     return parent::put($url, json_encode($data), $headers);
   }
 
+  /*
+  *
+  */
   protected function prepRequest($opts, $url) {
     $opts[CURLOPT_HTTPHEADER][] = 'Accept: application/json';
     $opts[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
     return parent::prepRequest($opts, $url);
   }
 
+  /*
+  *
+  */
   public function processBody($body) {
-    return json_decode($body, true);
+     return json_decode($body, true);
   }
+  
+  /*
+  *  $url $data and $headers is for method post
+  *  $apikey is a string like = 7c72ee2b1111a09865a65e21f5d728d973e43777
+  *  if the rest service return a json like
+  *  { "token": "KGbyJtTUkN1QInfxpERAKV29rKCIa8uGMbEz1hyxS9is7Fpps2yZj5XMbj14" }
+  */
+  public function setupAuthApikey($apikey, $url, $data, $headers=array())
+  {
+     $this->setApikey($apikey);
+     
+     $l_vec = $this->post($url, $data, $headers);
+     
+     $this->setToken($l_vec["token"]);
+  }
+  
+  
 }
