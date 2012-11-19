@@ -47,6 +47,11 @@ class Pest {
     $this->curl_opts[CURLOPT_USERPWD] = $user . ":" . $pass;
   }
   
+  // Sends Authorization: Token header
+  public function setupAuthenticationToken($token) {
+    $this->curl_opts[CURLOPT_HTTPHEADER] = array(sprintf('Authorization: Token %s', $token));
+  }
+  
   // Enable a proxy
   public function setupProxy($host, $port, $user = NULL, $pass = NULL) {
     $this->curl_opts[CURLOPT_PROXYTYPE] = 'HTTP';
