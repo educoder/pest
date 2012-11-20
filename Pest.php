@@ -89,19 +89,19 @@ public function post($url, $data, $headers=array()) {
   }
   
   public function put($url, $data, $headers=array()) {
-    $data = (is_array($data)) ? http_build_query($data) : $data; 
-    
+    $data = (is_array($data)) ? http_build_query($data) : $data;
+
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PUT';
-    $headers[] = 'Content-Length: '.strlen($data);
-    $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+
+    $curl_opts[CURLOPT_HTTPHEADER] = array_merge($this->curl_opts[CURLOPT_HTTPHEADER], array(sprintf('Content-Length: %d', strlen($data))));
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
-    
+
     $curl = $this->prepRequest($curl_opts, $url);
     $body = $this->doRequest($curl);
-    
+
     $body = $this->processBody($body);
-    
+
     return $body;
   }
   
