@@ -66,12 +66,29 @@ class Pest {
     return $body;
   }
   
+  public function prepData($data) {
+    if (is_array($data)) {
+        $multipart = false;
+        
+        foreach ($data as $item) {
+            if (strncmp($item, "@", 1) == 0 && is_file(substr($item, 1))) {
+                $multipart = true;
+                break;
+            }
+        }
+        
+        return ($multipart) ? $data : http_build_query($data);
+    } else {
+        return $data;
+    }
+  }
+  
   public function post($url, $data, $headers=array()) {
-    $data = (is_array($data)) ? http_build_query($data) : $data;
+    $data = $this->prepData($data);
         
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
-    $headers[] = 'Content-Length: '.strlen($data);
+    if (!is_array($data)) $headers[] = 'Content-Length: '.strlen($data);
     $curl_opts[CURLOPT_HTTPHEADER] = $headers;
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
     
@@ -84,11 +101,11 @@ class Pest {
   }
   
   public function put($url, $data, $headers=array()) {
-    $data = (is_array($data)) ? http_build_query($data) : $data; 
+    $data = $this->prepData($data);
     
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PUT';
-    $headers[] = 'Content-Length: '.strlen($data);
+    if (!is_array($data)) $headers[] = 'Content-Length: '.strlen($data);
     $curl_opts[CURLOPT_HTTPHEADER] = $headers;
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
     
