@@ -184,8 +184,7 @@ class Pest {
   
   protected function prepRequest($opts, $url) {
     if (strncmp($url, $this->base_url, strlen($this->base_url)) != 0) {
-      $divider = (substr($this->base_url,strlen($this->base_url),1)=='/' || substr($url,0,1)=='/') ? '' : '/';
-      $url = $this->base_url . $divider . $url;
+      $url = rtrim($this->base_url, '/') . '/' . ltrim($url, '/');
     }
     $curl = curl_init($url);
     
