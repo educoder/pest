@@ -7,6 +7,8 @@
  *
  * This code is licensed for use, modification, and distribution
  * under the terms of the MIT License (see http://en.wikipedia.org/wiki/MIT_License)
+ * 
+ * modification by Wojciech Brüggemann <wojtek77@o2.pl>
  */
 class Pest {
   public $curl_opts = array(
@@ -24,6 +26,13 @@ class Pest {
   
   public $throw_exceptions = true;
   
+  protected $isApc = true;          // if work APC cache
+  protected $apcPrefix = __FILE__;  // prefix for variables in APC
+  protected $apcLimitMemory = 0;    // in byte, 0 - no limit
+  protected $apcLimitLive = 43200;      // in second, 0 - no limit
+  protected $apcCompressionData = true; // compression data
+
+
   public function __construct($base_url) {
     if (!function_exists('curl_init')) {
   	    throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
@@ -39,6 +48,8 @@ class Pest {
     // The callback to handle return headers
     // Using PHP 5.2, it cannot be initialised in the static context
     $this->curl_opts[CURLOPT_HEADERFUNCTION] = array($this, 'handle_header');
+    
+    if ($this->isApc) $this->isApc = extension_loaded('apc');
   }
   
   // $auth can be 'basic' or 'digest'
@@ -57,9 +68,19 @@ class Pest {
     }
   }
   
-  public function get($url) {
+  /**
+   * @param string $url
+   * @param boolean $isApc
+   * @return mixed
+   */
+  public function get($url, $isApc = true) {
+    $isApc = $isApc && $this->isApc;
+    if ($isApc && false !== $body=$this->apcRead($this->base_url.$url)) return $this->processBody($body);
+    
     $curl = $this->prepRequest($this->curl_opts, $url);
     $body = $this->doRequest($curl);
+    
+    if ($isApc) $this->apcWrite($this->base_url.$url, $body);
     
     $body = $this->processBody($body);
     
@@ -281,6 +302,34 @@ class Pest {
           throw new Pest_UnknownResponse($this->processError($body));
         }
     }
+  }
+  
+  /**
+   * @param string $url
+   * @return mixed  if failure return false
+   */
+  protected function apcRead($url) {
+    $body = apc_fetch($this->apcPrefix.$url);
+    if ($this->apcCompressionData && $body !== false) $body = gzuncompress($body);
+    return $body;
+  }
+  
+  /**
+   * @param string $url
+   * @param mixed $body
+   * @return boolean
+   */
+  protected function apcWrite($url, $body) {
+    $sum = 0;
+    if($this->apcLimitMemory > 0) {
+      foreach (new APCIterator('user', '/^'.preg_quote($this->apcPrefix).'/') as $v) {
+        $sum += $v['mem_size'];
+      }
+    }
+    if ($sum > $this->apcLimitMemory) return false;
+    
+    if ($this->apcCompressionData) $body = gzcompress($body);
+    return apc_store($this->apcPrefix.$url, $body, $this->apcLimitLive);
   }
 }
 
