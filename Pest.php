@@ -71,7 +71,7 @@ class Pest {
         $multipart = false;
         
         foreach ($data as $item) {
-            if (strncmp($item, "@", 1) == 0 && is_file(substr($item, 1))) {
+            if (is_string($item) && strncmp($item, "@", 1) == 0 && is_file(substr($item, 1))) {
                 $multipart = true;
                 break;
             }
