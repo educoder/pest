@@ -65,6 +65,18 @@ class Pest {
     
     return $body;
   }
+
+  public function head($url) {
+    $curl_opts = $this->curl_opts;
+    $curl_opts[CURLOPT_NOBODY] = true;
+
+    $curl = $this->prepRequest($this->curl_opts, $url);
+    $body = $this->doRequest($curl);
+
+    $body = $this->processBody($body);
+
+    return $body;
+  }
   
   public function prepData($data) {
     if (is_array($data)) {
