@@ -101,7 +101,7 @@ class Pest {
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
     if (!is_array($data)) $headers[] = 'Content-Length: '.strlen($data);
-    $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+    $curl_opts[CURLOPT_HTTPHEADER] = array_merge($headers,$curl_opts[CURLOPT_HTTPHEADER]);
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
     
     $curl = $this->prepRequest($curl_opts, $url);
