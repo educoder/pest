@@ -57,7 +57,15 @@ class Pest {
     }
   }
   
-  public function get($url) {
+  public function get($url, $data=array()) {
+    if (!empty($data)) {
+        $pos = strpos($url, '?');
+        if ($pos !== false) {
+            $url = substr($url, 0, $pos);
+        }
+        $url .= '?' . http_build_query($data);
+    }
+
     $curl = $this->prepRequest($this->curl_opts, $url);
     $body = $this->doRequest($curl);
     
