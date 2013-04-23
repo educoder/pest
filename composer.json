@@ -1,7 +1,20 @@
 {
     "name": "educoder/pest",
     "description": "A proper REST client for PHP.",
-    "require": {
-
+    "authors": [
+    {
+        "name": "Egbert Teeselink",
+        "homepage": "http://www.github.com/eteeselink"
+    },
+    {
+        "name": "Tim Aerdts",
+        "email": "tim@tuimz.nl",
+        "homepage": "http://www.tuimz.nl"
+    }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Pest": "src/"
+        }
     }
 }
