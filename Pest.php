@@ -57,7 +57,7 @@ class Pest {
     }
   }
   
-  public function get($url, $data=array()) {
+  public function get($url, $data=array(), array $headers = array()) {
     if (!empty($data)) {
         $pos = strpos($url, '?');
         if ($pos !== false) {
@@ -66,7 +66,13 @@ class Pest {
         $url .= '?' . http_build_query($data);
     }
 
-    $curl = $this->prepRequest($this->curl_opts, $url);
+    $curl_opts = $this->curl_opts;
+    if($headers) {
+        $curl_opts[CURLOPT_HTTPHEADER] = array();
+        $curl_opts[CURLOPT_HTTPHEADER] = array_map(function($key, $value) { return $key . ': ' . $value; }, array_keys($headers), $headers);
+    }
+
+    $curl = $this->prepRequest($curl_opts, $url);
     $body = $this->doRequest($curl);
     
     $body = $this->processBody($body);
