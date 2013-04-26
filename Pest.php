@@ -13,7 +13,8 @@ class Pest {
   	CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
   	CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
   	CURLOPT_FOLLOWLOCATION => false,  // follow redirects, Location: headers
-  	CURLOPT_MAXREDIRS      => 10     // but dont redirect more than 10 times
+  	CURLOPT_MAXREDIRS      => 10,     // but dont redirect more than 10 times
+    CURLOPT_HTTPHEADER     => array() // the headers for http requests
   );
 
   public $base_url;
@@ -56,8 +57,24 @@ class Pest {
       $this->curl_opts[CURLOPT_PROXYUSERPWD] = $user . ":" . $pass;
     }
   }
+
+  // Setup global headers
+  public function addHeader($header, $value) {
+    $this->curl_opts[CURLOPT_HTTPHEADER][$header] = $value;
+  }
+
+  public function getHeader($header) {
+    if(isset($this->curl_opts[CURLOPT_HTTPHEADER][$header])) {
+      return $this->curl_opts[CURLOPT_HTTPHEADER][$header];
+    }
+    return null;
+  }
+
+  public function removeHeader($header) {
+    unset($this->curl_opts[CURLOPT_HTTPHEADER][$header]);
+  }
   
-  public function get($url, $data=array(), array $headers = array()) {
+  public function get($url, $data=array(), $headers = array()) {
     if (!empty($data)) {
         $pos = strpos($url, '?');
         if ($pos !== false) {
@@ -67,10 +84,7 @@ class Pest {
     }
 
     $curl_opts = $this->curl_opts;
-    if($headers) {
-        $curl_opts[CURLOPT_HTTPHEADER] = array();
-        $curl_opts[CURLOPT_HTTPHEADER] = array_map(function($key, $value) { return $key . ': ' . $value; }, array_keys($headers), $headers);
-    }
+    $curl_opts[CURLOPT_HTTPHEADER] = $this->getHeaders($headers);
 
     $curl = $this->prepRequest($curl_opts, $url);
     $body = $this->doRequest($curl);
@@ -80,9 +94,10 @@ class Pest {
     return $body;
   }
 
-  public function head($url) {
+  public function head($url, $headers = array()) {
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_NOBODY] = true;
+    $curl_opts[CURLOPT_HTTPHEADER] = $this->getHeaders($headers);
 
     $curl = $this->prepRequest($this->curl_opts, $url);
     $body = $this->doRequest($curl);
@@ -115,7 +130,7 @@ class Pest {
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
     if (!is_array($data)) $headers[] = 'Content-Length: '.strlen($data);
-    $curl_opts[CURLOPT_HTTPHEADER] = array_merge($headers,$curl_opts[CURLOPT_HTTPHEADER]);
+    $curl_opts[CURLOPT_HTTPHEADER] = $this->getHeaders($headers);
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
     
     $curl = $this->prepRequest($curl_opts, $url);
@@ -132,7 +147,7 @@ class Pest {
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PUT';
     if (!is_array($data)) $headers[] = 'Content-Length: '.strlen($data);
-    $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+    $curl_opts[CURLOPT_HTTPHEADER] = $this->getHeaders($headers);
     $curl_opts[CURLOPT_POSTFIELDS] = $data;
     
     $curl = $this->prepRequest($curl_opts, $url);
@@ -237,6 +252,18 @@ class Pest {
       $this->last_headers[strtolower($match[1])] = trim($match[2]);
     }
     return strlen($str);
+  }
+
+  // Get global headers merged-in with local headers & preprocess them for curl usage
+  private function getHeaders($headers = array()) {
+    $headers = array_merge($this->curl_opts[CURLOPT_HTTPHEADER], $headers);
+    $headers = array_map(array($this, 'processRequestHeaders'), array_keys($headers), $headers);
+    return $headers;
+  }
+
+  // array mapper for headers
+  public function processRequestHeaders($key, $value) {
+    return $key . ': ' . $value;
   }
 
   private function doRequest($curl) {
