@@ -1,6 +1,6 @@
 <?php
 
-require_once 'Pest.php';
+namespace Pest;
 
 /**
  * Small Pest addition by Egbert Teeselink (http://www.github.com/eteeselink)
@@ -23,7 +23,7 @@ require_once 'Pest.php';
  * This code is licensed for use, modification, and distribution
  * under the terms of the MIT License (see http://en.wikipedia.org/wiki/MIT_License)
  */
-class PestJSON extends Pest
+class PestJSON extends \Pest\Pest
 {
   public function post($url, $data, $headers=array()) {
     return parent::post($url, json_encode($data), $headers);

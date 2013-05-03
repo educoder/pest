@@ -8,6 +8,25 @@ Unlike [Zend_Rest_Client](http://framework.zend.com/manual/en/zend.rest.client.h
 really a "REST" client at all (more like RPC-over-HTTP), Pest supports the four REST verbs 
 (GET/POST/PUT/DELETE) and pays attention to HTTP response status codes.
 
+***Note that this is the namespaced version of Pest, the namespace is 'Pest'***
+
+
+Getting started with Composer
+-----------------------------
+Add the following to your project's composer.json
+
+    "require": {
+        "tuimz/pest": "dev-master",
+    }
+    
+In the examples below use the namespaced version of Pest:
+
+    <?php
+    require '/vendor/autoload.php';
+
+    $pest = new Pest\Pest('http://example.com');
+
+Besides this all the examples below apply.
 
 Basic Example
 -------------
