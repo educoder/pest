@@ -13,7 +13,8 @@ class Pest {
   	CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
   	CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
   	CURLOPT_FOLLOWLOCATION => false,  // follow redirects, Location: headers
-  	CURLOPT_MAXREDIRS      => 10     // but dont redirect more than 10 times
+  	CURLOPT_MAXREDIRS      => 10,     // but dont redirect more than 10 times
+    CURLOPT_HTTPHEADER     => array()
   );
 
   public $base_url;
