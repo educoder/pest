@@ -1,7 +1,22 @@
 {
     "name": "educoder/pest",
     "description": "A proper REST client for PHP.",
+    "homepage": "https://github.com/educoder/pest",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matt Zukowski",
+            "email": "matt@zukowski.ca"
+        },
+        {
+            "name": "Donald Sipe",
+            "email": "donald.sipe@gmail.com"
+        }
+    ],
     "require": {
-
+        "lib-curl": "*"
+    },
+    "autoload": {
+        "classmap": [""]
     }
 }
