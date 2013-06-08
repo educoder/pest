@@ -8,6 +8,19 @@ Unlike [Zend_Rest_Client](http://framework.zend.com/manual/en/zend.rest.client.h
 really a "REST" client at all (more like RPC-over-HTTP), Pest supports the four REST verbs 
 (GET/POST/PUT/DELETE) and pays attention to HTTP response status codes.
 
+Composer Installation
+------------
+
+To install Pest, use the following composer `require` statement:
+```
+{
+    "require": {
+        "educoder/pest": "1.0.0-RC1"
+    }
+}
+
+```
+
 
 Basic Example
 -------------
@@ -17,7 +30,6 @@ See the info on PestXML (below) if you're working with XML-based REST services a
 PestJSON if you're working with JSON.
 
     <?php
-    require 'Pest.php';
 
     $pest = new Pest('http://example.com');
 
@@ -68,7 +80,6 @@ return XML data. Rather than returning the raw response body as a string, PestXM
 try to parse the service's response into a [SimpleXML](http://php.net/manual/en/book.simplexml.php) object.
 
 	<?php
-	require 'PestXML.php';
 
 	$pest = new Pest('http://example.com');
 
