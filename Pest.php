@@ -41,6 +41,16 @@ class Pest {
     // Using PHP 5.2, it cannot be initialised in the static context
     $this->curl_opts[CURLOPT_HEADERFUNCTION] = array($this, 'handle_header');
   }
+
+  // Lets you add a header to the header list
+  // Example: pest->addHeader("Accept", "application/xml");
+  public function addHeader($headerName, $value) {
+      try {
+          array_push($this->curl_opts[CURLOPT_HTTPHEADER], $headerName.":".$value);
+      } catch (Exception $e) {
+          $this->curl_opts[CURLOPT_HTTPHEADER] = array($headerName.":".$value);
+      }
+  }
   
   // $auth can be 'basic' or 'digest'
   public function setupAuth($user, $pass, $auth = 'basic') {
