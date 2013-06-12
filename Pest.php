@@ -319,12 +319,11 @@ class Pest_UnknownResponse extends Pest_Exception { }
 /* 409 */ class Pest_Conflict extends Pest_ClientError {}
 /* 410 */ class Pest_Gone extends Pest_ClientError {}
 /* 422 */ class Pest_InvalidRecord extends Pest_ClientError {}
+/* 500-599 */ class Pest_ServerError extends Pest_Exception {}
 
 // CURL Errors
 /* init */ class Pest_Curl_Init extends Pest_ClientError {}
 /* meta */ class Pest_Curl_Meta extends Pest_ClientError {}
 /* exec */ class Pest_Curl_Exec extends Pest_ClientError {}
-
-/* 500-599 */ class Pest_ServerError extends Pest_Exception {}
 
 ?>
