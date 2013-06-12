@@ -9,8 +9,8 @@
  */
 class Pest {
   public $curl_opts = array(
-  	CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
-  	CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
+	CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
+	CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
   	CURLOPT_FOLLOWLOCATION => false,  // follow redirects, Location: headers
   	CURLOPT_MAXREDIRS      => 10,     // but dont redirect more than 10 times
 	CURLOPT_HTTPHEADER     => array()
@@ -28,7 +28,7 @@ class Pest {
     if (!function_exists('curl_init')) {
       throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
     } // $this->throw_exceptions does not apply? document pls.
-  	
+    
     // only enable CURLOPT_FOLLOWLOCATION if safe_mode and open_base_dir are not in use
     if(ini_get('open_basedir') == '' && strtolower(ini_get('safe_mode')) == 'off') {
       $this->curl_opts['CURLOPT_FOLLOWLOCATION'] = true;
@@ -59,16 +59,15 @@ class Pest {
   
   public function get($url, $data=array()) {
     if (!empty($data)) {
-        $pos = strpos($url, '?');
-        if ($pos !== false) {
-            $url = substr($url, 0, $pos);
+      $pos = strpos($url, '?');
+      if ($pos !== false) {
+	$url = substr($url, 0, $pos);
         }
-        $url .= '?' . http_build_query($data);
+      $url .= '?' . http_build_query($data);
     }
-
+    
     $curl = $this->prepRequest($this->curl_opts, $url);
     $body = $this->doRequest($curl);
-    
     $body = $this->processBody($body);
     
     return $body;
@@ -88,24 +87,24 @@ class Pest {
   
   public function prepData($data) {
     if (is_array($data)) {
-        $multipart = false;
-        
-        foreach ($data as $item) {
-            if (is_string($item) && strncmp($item, "@", 1) == 0 && is_file(substr($item, 1))) {
-                $multipart = true;
-                break;
-            }
-        }
-        
-        return ($multipart) ? $data : http_build_query($data);
+      $multipart = false;
+      
+      foreach ($data as $item) {
+	if (is_string($item) && strncmp($item, "@", 1) == 0 && is_file(substr($item, 1))) {
+	  $multipart = true;
+	  break;
+	}
+      }
+      
+      return ($multipart) ? $data : http_build_query($data);
     } else {
-        return $data;
+      return $data;
     }
   }
   
   public function post($url, $data, $headers=array()) {
     $data = $this->prepData($data);
-        
+    
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
     if (!is_array($data)) $headers[] = 'Content-Length: '.strlen($data);
@@ -137,7 +136,7 @@ class Pest {
     return $body;
   }
   
-    public function patch($url, $data, $headers=array()) {
+  public function patch($url, $data, $headers=array()) {
     $data = (is_array($data)) ? http_build_query($data) : $data; 
     
     $curl_opts = $this->curl_opts;
@@ -239,34 +238,29 @@ class Pest {
     $this->last_response = array();
 
     // curl_error() needs to be tested right after function failure
-    if (($this->last_response["meta"] = curl_getinfo($curl)) === false && $this->throw_exceptions) {
-      throw new Pest_Curl_Meta($this->processError(curl_error($curl), 'curl'));
-    }
-
     if (($this->last_response["body"] = curl_exec($curl)) === false && $this->throw_exceptions) {
       throw new Pest_Curl_Exec($this->processError(curl_error($curl).' meta: '.var_export($this->last_response["meta"], 1), 'curl'));
     }
 
-    /*
-    $this->last_response =
-      array('body'  => $body,
-	    'meta'  => $meta);
-    */
+    if (($this->last_response["meta"] = curl_getinfo($curl)) === false && $this->throw_exceptions) {
+      throw new Pest_Curl_Meta($this->processError(curl_error($curl), 'curl'));
+    }
+
     curl_close($curl);
     
-    $this->checkLastResponseForHTTPError();
-    
+    $this->checkLastResponseForError();
+
     return $this->last_response["body"];
   }
   
-  protected function checkLastResponseForHTTPError() {
+  protected function checkLastResponseForError() {
     if ( !$this->throw_exceptions)
       return;
       
     $meta = $this->last_response['meta'];
     $body = $this->last_response['body'];
-    
-    if (!$meta) // what is this? nuke pls. -V/2013/jun/6
+
+    if ($meta === false)
       return;
     
     $err = null;
