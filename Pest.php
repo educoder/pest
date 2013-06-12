@@ -1,5 +1,4 @@
 <?php // -*- c-basic-offset: 2 -*-
-
 /**
  * Pest is a REST client for PHP.
  *
@@ -10,11 +9,11 @@
  */
 class Pest {
   public $curl_opts = array(
-  	CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
-  	CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
+	CURLOPT_RETURNTRANSFER => true,  // return result instead of echoing
+	CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
   	CURLOPT_FOLLOWLOCATION => false,  // follow redirects, Location: headers
   	CURLOPT_MAXREDIRS      => 10,     // but dont redirect more than 10 times
-    CURLOPT_HTTPHEADER     => array()
+	CURLOPT_HTTPHEADER     => array()
   );
 
   public $base_url;
@@ -27,13 +26,13 @@ class Pest {
   
   public function __construct($base_url) {
     if (!function_exists('curl_init')) {
-  	    throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
-  	}
-  	
-  	// only enable CURLOPT_FOLLOWLOCATION if safe_mode and open_base_dir are not in use
-  	if(ini_get('open_basedir') == '' && strtolower(ini_get('safe_mode')) == 'off') {
-  	  $this->curl_opts['CURLOPT_FOLLOWLOCATION'] = true;
-  	}
+      throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
+    } // $this->throw_exceptions does not apply? document pls.
+    
+    // only enable CURLOPT_FOLLOWLOCATION if safe_mode and open_base_dir are not in use
+    if(ini_get('open_basedir') == '' && strtolower(ini_get('safe_mode')) == 'off') {
+      $this->curl_opts['CURLOPT_FOLLOWLOCATION'] = true;
+    }
     
     $this->base_url = $base_url;
     
@@ -60,16 +59,15 @@ class Pest {
   
   public function get($url, $data=array()) {
     if (!empty($data)) {
-        $pos = strpos($url, '?');
-        if ($pos !== false) {
-            $url = substr($url, 0, $pos);
+      $pos = strpos($url, '?');
+      if ($pos !== false) {
+	$url = substr($url, 0, $pos);
         }
-        $url .= '?' . http_build_query($data);
+      $url .= '?' . http_build_query($data);
     }
-
+    
     $curl = $this->prepRequest($this->curl_opts, $url);
     $body = $this->doRequest($curl);
-    
     $body = $this->processBody($body);
     
     return $body;
@@ -89,24 +87,24 @@ class Pest {
   
   public function prepData($data) {
     if (is_array($data)) {
-        $multipart = false;
-        
-        foreach ($data as $item) {
-            if (is_string($item) && strncmp($item, "@", 1) == 0 && is_file(substr($item, 1))) {
-                $multipart = true;
-                break;
-            }
-        }
-        
-        return ($multipart) ? $data : http_build_query($data);
+      $multipart = false;
+      
+      foreach ($data as $item) {
+	if (is_string($item) && strncmp($item, "@", 1) == 0 && is_file(substr($item, 1))) {
+	  $multipart = true;
+	  break;
+	}
+      }
+      
+      return ($multipart) ? $data : http_build_query($data);
     } else {
-        return $data;
+      return $data;
     }
   }
   
   public function post($url, $data, $headers=array()) {
     $data = $this->prepData($data);
-        
+    
     $curl_opts = $this->curl_opts;
     $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
     if (!is_array($data)) $headers[] = 'Content-Length: '.strlen($data);
@@ -138,7 +136,7 @@ class Pest {
     return $body;
   }
   
-    public function patch($url, $data, $headers=array()) {
+  public function patch($url, $data, $headers=array()) {
     $data = (is_array($data)) ? http_build_query($data) : $data; 
     
     $curl_opts = $this->curl_opts;
@@ -194,7 +192,7 @@ class Pest {
     return $body;
   }
   
-  protected function processError($body) {
+  protected function processError($body, $layer = 'http') {
     // Override this in classes that extend Pest.
     // The body of every erroneous (non-2xx/3xx) GET/POST/PUT/DELETE  
     // response goes through here prior to being used as the 'message'
@@ -202,12 +200,13 @@ class Pest {
     return $body;
   }
 
-  
   protected function prepRequest($opts, $url) {
     if (strncmp($url, $this->base_url, strlen($this->base_url)) != 0) {
       $url = rtrim($this->base_url, '/') . '/' . ltrim($url, '/');
     }
-    $curl = curl_init($url);
+    if (($curl = curl_init($url)) === false) {
+      throw new Pest_Curl_Init($this->processError(curl_error($curl), 'curl'));
+    } // $this->throw_exceptions does not apply? document pls.
     
     foreach ($opts as $opt => $val)
       curl_setopt($curl, $opt, $val);
@@ -235,21 +234,23 @@ class Pest {
   }
 
   private function doRequest($curl) {
-    $this->last_headers = array();
-    
-    $body = curl_exec($curl);
-    $meta = curl_getinfo($curl);
-    
-    $this->last_response = array(
-      'body' => $body,
-      'meta' => $meta
-    );
-    
+    $this->last_headers  = array();
+    $this->last_response = array();
+
+    // curl_error() needs to be tested right after function failure
+    if (($this->last_response["body"] = curl_exec($curl)) === false && $this->throw_exceptions) {
+      throw new Pest_Curl_Exec($this->processError(curl_error($curl).' meta: '.var_export($this->last_response["meta"], 1), 'curl'));
+    }
+
+    if (($this->last_response["meta"] = curl_getinfo($curl)) === false && $this->throw_exceptions) {
+      throw new Pest_Curl_Meta($this->processError(curl_error($curl), 'curl'));
+    }
+
     curl_close($curl);
     
     $this->checkLastResponseForError();
-    
-    return $body;
+
+    return $this->last_response["body"];
   }
   
   protected function checkLastResponseForError() {
@@ -258,8 +259,8 @@ class Pest {
       
     $meta = $this->last_response['meta'];
     $body = $this->last_response['body'];
-    
-    if (!$meta)
+
+    if ($meta === false)
       return;
     
     $err = null;
@@ -298,17 +299,17 @@ class Pest {
           throw new Pest_ClientError($this->processError($body));
         elseif ($meta['http_code'] >= 500 && $meta['http_code'] <= 599)
           throw new Pest_ServerError($this->processError($body));
-        elseif (!$meta['http_code'] || $meta['http_code'] >= 600) {
+        elseif (!isset($meta['http_code']) || $meta['http_code'] >= 600) {
           throw new Pest_UnknownResponse($this->processError($body));
         }
     }
   }
 }
 
-
 class Pest_Exception extends Exception { }
 class Pest_UnknownResponse extends Pest_Exception { }
 
+// HTTP Errors
 /* 401-499 */ class Pest_ClientError extends Pest_Exception {}
 /* 400 */ class Pest_BadRequest extends Pest_ClientError {}
 /* 401 */ class Pest_Unauthorized extends Pest_ClientError {}
@@ -318,6 +319,11 @@ class Pest_UnknownResponse extends Pest_Exception { }
 /* 409 */ class Pest_Conflict extends Pest_ClientError {}
 /* 410 */ class Pest_Gone extends Pest_ClientError {}
 /* 422 */ class Pest_InvalidRecord extends Pest_ClientError {}
+
+// CURL Errors
+/* init */ class Pest_Curl_Init extends Pest_ClientError {}
+/* meta */ class Pest_Curl_Meta extends Pest_ClientError {}
+/* exec */ class Pest_Curl_Exec extends Pest_ClientError {}
 
 /* 500-599 */ class Pest_ServerError extends Pest_Exception {}
 
