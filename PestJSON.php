@@ -1,7 +1,5 @@
 <?php
-
 require_once 'Pest.php';
-
 /**
  * Small Pest addition by Egbert Teeselink (http://www.github.com/eteeselink)
  *
@@ -22,15 +20,37 @@ require_once 'Pest.php';
  *
  * This code is licensed for use, modification, and distribution
  * under the terms of the MIT License (see http://en.wikipedia.org/wiki/MIT_License)
+ *
  */
-class PestJSON extends Pest
-{
+
+// Consider PestJSONStreamer to stream decoded/encoded JSON with very large record datasets -V/2013/Jun/6
+class PestJSON extends Pest {
+  private function _json_last_error_msg() {
+    if (function_exists('json_last_error_msg')) {
+      return(json_last_error_msg());
+    }
+    return(json_last_error());
+  }
+  private function _json_encode_echeck($data) {
+    $ret = '';
+    if(($ret = json_encode($data)) === NULL) {
+      throw new Pest_Json_Encode($this->_json_last_error_msg().' data: '.$data);
+    }
+    return $ret;
+  }
+  private function _json_decode_echeck($data, $assoc = false) {
+    $ret = '';
+    if(($ret = json_decode($data, $assoc)) === NULL) {
+      throw new Pest_Json_Decode($this->_json_last_error_msg().' data: '.$data);
+    }
+    return $ret;
+  }
   public function post($url, $data, $headers=array()) {
-    return parent::post($url, json_encode($data), $headers);
+    return parent::post($url, ($this->throw_exceptions ? $this->_json_encode_echeck($data) : json_encode($data)), $headers);
   }
   
   public function put($url, $data, $headers=array()) {
-    return parent::put($url, json_encode($data), $headers);
+    return parent::put($url, ($this->throw_exceptions ? $this->_json_encode_echeck($data) : json_encode($data)), $headers);
   }
 
   protected function prepRequest($opts, $url) {
@@ -40,6 +60,10 @@ class PestJSON extends Pest
   }
 
   public function processBody($body) {
-    return json_decode($body, true);
+    return ($this->throw_exceptions ? $this->_json_decode_echeck($body, true) : json_decode($body, true));
   }
 }
+
+// JSON Errors
+/* decode */ class Pest_Json_Decode extends Pest_ClientError {}
+/* encode */ class Pest_Json_Encode extends Pest_ClientError {}
