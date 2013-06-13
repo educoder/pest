@@ -1,4 +1,4 @@
-<?php // -*- c-basic-offset: 2 -*-
+<?php
 /**
  * Pest is a REST client for PHP.
  *
@@ -192,7 +192,7 @@ class Pest {
     return $body;
   }
   
-  protected function processError($body, $layer = 'http') {
+  protected function processError($body) {
     // Override this in classes that extend Pest.
     // The body of every erroneous (non-2xx/3xx) GET/POST/PUT/DELETE  
     // response goes through here prior to being used as the 'message'
@@ -204,7 +204,9 @@ class Pest {
     if (strncmp($url, $this->base_url, strlen($this->base_url)) != 0) {
       $url = rtrim($this->base_url, '/') . '/' . ltrim($url, '/');
     }
-    if (($curl = curl_init($url)) === false) {
+
+    $curl = curl_init($url);
+    if ($curl === false) {
       throw new Pest_Curl_Init($this->processError(curl_error($curl), 'curl'));
     } // $this->throw_exceptions does not apply? document pls.
     
@@ -238,12 +240,14 @@ class Pest {
     $this->last_response = array();
 
     // curl_error() needs to be tested right after function failure
-    if (($this->last_response["body"] = curl_exec($curl)) === false && $this->throw_exceptions) {
-      throw new Pest_Curl_Exec($this->processError(curl_error($curl).' meta: '.var_export($this->last_response["meta"], 1), 'curl'));
+    $this->last_response["body"] = curl_exec($curl);
+    if ($this->last_response["body"] === false && $this->throw_exceptions) {
+      throw new Pest_Curl_Exec(curl_error($curl));
     }
 
-    if (($this->last_response["meta"] = curl_getinfo($curl)) === false && $this->throw_exceptions) {
-      throw new Pest_Curl_Meta($this->processError(curl_error($curl), 'curl'));
+    $this->last_response["meta"] = curl_getinfo($curl);
+    if ($this->last_response["meta"] === false && $this->throw_exceptions) {
+      throw new Pest_Curl_Meta(curl_error($curl));
     }
 
     curl_close($curl);

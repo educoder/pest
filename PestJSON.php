@@ -1,4 +1,4 @@
-<?php // -*- c-basic-offset: 2 -*-
+<?php
 require_once 'Pest.php';
 /**
  * Small Pest addition by Egbert Teeselink (http://www.github.com/eteeselink)
@@ -34,23 +34,23 @@ class PestJSON extends Pest {
   private function _json_encode_echeck($data) {
     $ret = '';
     if(($ret = json_encode($data)) === NULL) {
-      throw new Pest_Json_Encode($ret.'-'.$this->_json_last_error_msg());
+      throw new Pest_Json_Encode($this->_json_last_error_msg().' data: '.$data);
     }
     return $ret;
   }
   private function _json_decode_echeck($data, $assoc = false) {
     $ret = '';
     if(($ret = json_decode($data, $assoc)) === NULL) {
-      throw new Pest_Json_Decode($ret.'-'.$this->_json_last_error_msg());
+      throw new Pest_Json_Decode($this->_json_last_error_msg().' data: '.$data);
     }
     return $ret;
   }
   public function post($url, $data, $headers=array()) {
-    return parent::post($url, ($this->throw_exceptions ? json_encode_echeck($data) : json_encode($data)), $headers);
+    return parent::post($url, ($this->throw_exceptions ? $this->_json_encode_echeck($data) : json_encode($data)), $headers);
   }
   
   public function put($url, $data, $headers=array()) {
-    return parent::put($url, ($this->throw_exceptions ? json_encode_echeck($data) : json_encode($data)), $headers);
+    return parent::put($url, ($this->throw_exceptions ? $this->_json_encode_echeck($data) : json_encode($data)), $headers);
   }
 
   protected function prepRequest($opts, $url) {
