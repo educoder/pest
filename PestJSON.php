@@ -29,8 +29,10 @@ class PestJSON extends Pest
 {
     /**
      * @var bool Throw exceptions on JSON encoding errors?
+     * @var bool Throw exceptions on JSON decoding errors?
      */
     public $throwEncodingExceptions = false;
+    public $throwDecodingExceptions = false;
 
     /**
      * Perform an HTTP POST
@@ -72,7 +74,7 @@ class PestJSON extends Pest
         if ($this->throwEncodingExceptions
                 && json_last_error() !== JSON_ERROR_NONE) {
             throw new Pest_Json_Encode(
-                'Encoding error: ' . $this->_getLastJsonErrorMessage()
+		'Encoding error('.json_last_error().'): ' . $this->_getLastJsonErrorMessage()
             );
         }
 
@@ -91,10 +93,10 @@ class PestJSON extends Pest
     {
         $ret = json_decode($data, $asArray);
 
-        if ($this->throwEncodingExceptions
+        if ($this->throwDecodingExceptions
             && json_last_error() !== JSON_ERROR_NONE) {
-            throw new Pest_Json_Encode(
-                'Decoding error: ' . $this->_getLastJsonErrorMessage()
+            throw new Pest_Json_Decode(
+		'Decoding error('.json_last_error().'): ' . $this->_getLastJsonErrorMessage()
             );
         }
 
@@ -125,7 +127,7 @@ class PestJSON extends Pest
                 return 'Malformed UTF-8 characters, possibly incorrectly encoded';
                 break;
             default:
-                return 'Unknown';
+	        return 'Unknown';
                 break;
         }
     }
