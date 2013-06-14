@@ -107,9 +107,10 @@ class Pest
      *
      * @param string $url
      * @param array $data
+     * @param array $headers
      * @return string
      */
-    public function get($url, $data = array())
+    public function get($url, $data = array(), $headers=array())
     {
         if (!empty($data)) {
             $pos = strpos($url, '?');
@@ -119,7 +120,11 @@ class Pest
             $url .= '?' . http_build_query($data);
         }
 
-        $curl = $this->prepRequest($this->curl_opts, $url);
+        $curl_opts = $this->curl_opts;
+        $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+
+
+        $curl = $this->prepRequest($curl_opts, $url);
         $body = $this->doRequest($curl);
         $body = $this->processBody($body);
 
@@ -320,7 +325,7 @@ class Pest
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
         if (!is_array($data)) $headers[] = 'Content-Length: ' . strlen($data);
-        $curl_opts[CURLOPT_HTTPHEADER] = array_merge($headers, $curl_opts[CURLOPT_HTTPHEADER]);
+        $curl_opts[CURLOPT_HTTPHEADER] = $headers;
         $curl_opts[CURLOPT_POSTFIELDS] = $data;
 
         $curl = $this->prepRequest($curl_opts, $url);
@@ -410,12 +415,14 @@ class Pest
      * Perform HTTP DELETE request
      *
      * @param string $url
+     * @param array $headers
      * @return string
      */
-    public function delete($url)
+    public function delete($url, $headers=array())
     {
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_CUSTOMREQUEST] = 'DELETE';
+        $curl_opts[CURLOPT_HTTPHEADER] = $headers;
 
         $curl = $this->prepRequest($curl_opts, $url);
         $body = $this->doRequest($curl);

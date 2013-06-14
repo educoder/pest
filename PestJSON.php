@@ -103,7 +103,7 @@ class PestJSON extends Pest
 
     /**
      * Get last JSON error message
-     * 
+     *
      * @return string
      */
     protected function _getLastJsonErrorMessage()
