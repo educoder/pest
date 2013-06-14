@@ -110,6 +110,9 @@ class PestJSON extends Pest
      */
     protected function _getLastJsonErrorMessage()
     {
+        if (!function_exists('json_last_error_msg')) {
+	    return(json_last_error_msg());
+        }
         switch (json_last_error()) {
             case JSON_ERROR_DEPTH:
                 return 'Maximum stack depth exceeded';
