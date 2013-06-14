@@ -110,8 +110,11 @@ class PestJSON extends Pest
      */
     protected function _getLastJsonErrorMessage()
     {
-        if (!function_exists('json_last_error_msg')) {
+        if (function_exists('json_last_error_msg')===false) {
 	    return(json_last_error_msg());
+        }
+        if (defined('JSON_ERROR_UTF8')===false) {
+            define('JSON_ERROR_UTF8', JSON_ERROR_NONE);
         }
         switch (json_last_error()) {
             case JSON_ERROR_DEPTH:
