@@ -31,6 +31,7 @@ class PestJSON extends Pest
      * @var bool Throw exceptions on JSON encoding errors?
      * @var bool Throw exceptions on JSON decoding errors?
      */
+    
     public $throwEncodingExceptions = false;
     public $throwDecodingExceptions = false;
 
@@ -72,9 +73,9 @@ class PestJSON extends Pest
         $ret = json_encode($data);
 
         if ($this->throwEncodingExceptions
-                && json_last_error() !== JSON_ERROR_NONE) {
+            && json_last_error() !== JSON_ERROR_NONE) {
             throw new Pest_Json_Encode(
-		'Encoding error('.json_last_error().'): ' . $this->_getLastJsonErrorMessage()
+                'Encoding error('.json_last_error().'): ' . $this->_getLastJsonErrorMessage()
             );
         }
 
@@ -96,7 +97,7 @@ class PestJSON extends Pest
         if ($this->throwDecodingExceptions
             && json_last_error() !== JSON_ERROR_NONE) {
             throw new Pest_Json_Decode(
-		'Decoding error('.json_last_error().'): ' . $this->_getLastJsonErrorMessage()
+                'Decoding error('.json_last_error().'): ' . $this->_getLastJsonErrorMessage()
             );
         }
 
@@ -110,11 +111,11 @@ class PestJSON extends Pest
      */
     protected function _getLastJsonErrorMessage()
     {
-        if (function_exists('json_last_error_msg')===false) {
-	    return(json_last_error_msg());
+        if (function_exists('json_last_error_msg')===true) {
+            return(json_last_error_msg());
         }
         if (defined('JSON_ERROR_UTF8')===false) {
-            define('JSON_ERROR_UTF8', JSON_ERROR_NONE);
+            define('JSON_ERROR_UTF8', 'JSON_ERROR_NONE');
         }
         switch (json_last_error()) {
             case JSON_ERROR_DEPTH:
@@ -133,7 +134,7 @@ class PestJSON extends Pest
                 return 'Malformed UTF-8 characters, possibly incorrectly encoded';
                 break;
             default:
-	        return 'Unknown';
+                return 'Unknown';
                 break;
         }
     }
