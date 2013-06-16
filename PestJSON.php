@@ -14,8 +14,8 @@
  * class does not accept arrays for the exception message and some JSON/REST servers
  * do not produce nice JSON
  *
- * If you want to have exceptions thrown when there are errors encoding or
- * decoding JSON set the `throwEncodingExceptions` property to TRUE.
+ * In the above case if you do not want to have exceptions thrown when there are errors on
+ * decoding JSON set the `throwDecodingExceptions` property to (bool)false.
  *
  * See http://github.com/educoder/pest for details.
  *
@@ -32,8 +32,8 @@ class PestJSON extends Pest
      * @var bool Throw exceptions on JSON decoding errors?
      */
     
-    public $throwEncodingExceptions = false;
-    public $throwDecodingExceptions = false;
+    public $throwEncodingExceptions = true;
+    public $throwDecodingExceptions = true;
 
     /**
      * Perform an HTTP POST
