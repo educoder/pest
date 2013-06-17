@@ -30,7 +30,7 @@ class PestJSON extends Pest
     /**
      * @var bool Throw exceptions on JSON encoding errors?
      */
-    public $throwEncodingExceptions = false;
+    public $throwJsonExceptions = false;
 
     /**
      * Perform an HTTP POST
@@ -69,10 +69,10 @@ class PestJSON extends Pest
     {
         $ret = json_encode($data);
 
-        if ($this->throwEncodingExceptions
+        if ($this->throwJsonExceptions
                 && json_last_error() !== JSON_ERROR_NONE) {
             throw new Pest_Json_Encode(
-                'Encoding error: ' . $this->_getLastJsonErrorMessage()
+                'Encoding error: ' . $this->getLastJsonErrorMessage()
             );
         }
 
@@ -91,10 +91,10 @@ class PestJSON extends Pest
     {
         $ret = json_decode($data, $asArray);
 
-        if ($this->throwEncodingExceptions
+        if ($this->throwJsonExceptions
             && json_last_error() !== JSON_ERROR_NONE) {
             throw new Pest_Json_Encode(
-                'Decoding error: ' . $this->_getLastJsonErrorMessage()
+                'Decoding error: ' . $this->getLastJsonErrorMessage()
             );
         }
 
@@ -106,9 +106,21 @@ class PestJSON extends Pest
      *
      * @return string
      */
-    protected function _getLastJsonErrorMessage()
+    public function getLastJsonErrorMessage()
     {
-        switch (json_last_error()) {
+        // Use the newer JSON error message function if it exists
+        if (function_exists('json_last_error_msg')) {
+            return(json_last_error_msg());
+        }
+
+        $lastError = json_last_error();
+
+        // PHP 5.3+ only
+        if (defined('JSON_ERROR_UTF8') && $lastError === JSON_ERROR_UTF8) {
+            return 'Malformed UTF-8 characters, possibly incorrectly encoded';
+        }
+
+        switch ($lastError) {
             case JSON_ERROR_DEPTH:
                 return 'Maximum stack depth exceeded';
                 break;
@@ -120,9 +132,6 @@ class PestJSON extends Pest
                 break;
             case JSON_ERROR_SYNTAX:
                 return 'Syntax error, malformed JSON';
-                break;
-            case JSON_ERROR_UTF8:
-                return 'Malformed UTF-8 characters, possibly incorrectly encoded';
                 break;
             default:
                 return 'Unknown';
