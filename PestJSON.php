@@ -14,8 +14,8 @@
  * class does not accept arrays for the exception message and some JSON/REST servers
  * do not produce nice JSON
  *
- * If you want to have exceptions thrown when there are errors encoding or
- * decoding JSON set the `throwEncodingExceptions` property to TRUE.
+ * If you don't want to have exceptions thrown when there are errors encoding or
+ * decoding JSON set the `throwEncodingExceptions` property to FALSE.
  *
  * See http://github.com/educoder/pest for details.
  *
@@ -30,7 +30,7 @@ class PestJSON extends Pest
     /**
      * @var bool Throw exceptions on JSON encoding errors?
      */
-    public $throwJsonExceptions = false;
+    public $throwJsonExceptions = true;
 
     /**
      * Perform an HTTP POST
@@ -61,7 +61,7 @@ class PestJSON extends Pest
     /**
      * JSON encode with error checking
      *
-     * @param string $data
+     * @param mixed $data
      * @return string
      * @throws Pest_Json_Encode
      */
@@ -72,7 +72,8 @@ class PestJSON extends Pest
         if ($this->throwJsonExceptions
                 && json_last_error() !== JSON_ERROR_NONE) {
             throw new Pest_Json_Encode(
-                'Encoding error: ' . $this->getLastJsonErrorMessage()
+                'Encoding error: ' . $this->getLastJsonErrorMessage(),
+                $this->getLastJsonErrorCode()
             );
         }
 
@@ -82,10 +83,10 @@ class PestJSON extends Pest
     /**
      * Decode a JSON string with error checking
      *
-     * @param $data
+     * @param string $data
      * @param bool $asArray
+     * @throws Pest_Json_Decode
      * @return mixed
-     * @throws Pest_Json_Encode
      */
     public function jsonDecode($data, $asArray=true)
     {
@@ -93,8 +94,9 @@ class PestJSON extends Pest
 
         if ($this->throwJsonExceptions
             && json_last_error() !== JSON_ERROR_NONE) {
-            throw new Pest_Json_Encode(
-                'Decoding error: ' . $this->getLastJsonErrorMessage()
+            throw new Pest_Json_Decode(
+                'Decoding error: ' . $this->getLastJsonErrorMessage(),
+                $this->getLastJsonErrorCode()
             );
         }
 
@@ -137,6 +139,16 @@ class PestJSON extends Pest
                 return 'Unknown';
                 break;
         }
+    }
+
+
+    /**
+     * Get last JSON error code
+     * @return int|null
+     */
+    public function getLastJsonErrorCode()
+    {
+        return json_last_error();
     }
 
     /**
