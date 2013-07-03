@@ -121,8 +121,8 @@ class Pest
         }
 
         $curl_opts = $this->curl_opts;
-        $curl_opts[CURLOPT_HTTPHEADER] = $headers;
-
+        
+        $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers);
 
         $curl = $this->prepRequest($curl_opts, $url);
         $body = $this->doRequest($curl);
@@ -166,6 +166,30 @@ class Pest
             $this->last_request['data'] = $opts[CURLOPT_POSTFIELDS];
 
         return $curl;
+    }
+    
+    /**
+     * Flatten headers from an associative array to a numerically indexed array of "Name: Value"
+     * style entries like CURLOPT_HTTPHEADER expects. Numerically indexed arrays are not modified.
+     *
+     * @param array $headers
+     * @return array
+     */
+    protected function prepHeaders($headers)
+    {
+        // Skip if the array is already numerically indexed
+        if (!(bool)count(array_filter(array_keys($headers), 'is_string')))
+        {
+            return $headers;
+        }
+        
+        $flattened = array();
+        foreach ($headers as $name => $value)
+        {
+             $flattened[] = $name . ': ' . $value;
+        }
+        
+        return $flattened;
     }
 
     /**
@@ -325,7 +349,7 @@ class Pest
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
         if (!is_array($data)) $headers[] = 'Content-Length: ' . strlen($data);
-        $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+        $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers);
         $curl_opts[CURLOPT_POSTFIELDS] = $data;
 
         $curl = $this->prepRequest($curl_opts, $url);
@@ -374,7 +398,7 @@ class Pest
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PUT';
         if (!is_array($data)) $headers[] = 'Content-Length: ' . strlen($data);
-        $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+        $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers);
         $curl_opts[CURLOPT_POSTFIELDS] = $data;
 
         $curl = $this->prepRequest($curl_opts, $url);
@@ -400,7 +424,7 @@ class Pest
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PATCH';
         $headers[] = 'Content-Length: ' . strlen($data);
-        $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+        $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers);
         $curl_opts[CURLOPT_POSTFIELDS] = $data;
 
         $curl = $this->prepRequest($curl_opts, $url);
@@ -422,7 +446,7 @@ class Pest
     {
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_CUSTOMREQUEST] = 'DELETE';
-        $curl_opts[CURLOPT_HTTPHEADER] = $headers;
+        $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers);
 
         $curl = $this->prepRequest($curl_opts, $url);
         $body = $this->doRequest($curl);
