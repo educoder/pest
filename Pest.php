@@ -178,14 +178,12 @@ class Pest
     protected function prepHeaders($headers)
     {
         // Skip if the array is already numerically indexed
-        if (!(bool)count(array_filter(array_keys($headers), 'is_string')))
-        {
+        if (!(bool)count(array_filter(array_keys($headers), 'is_string'))) {
             return $headers;
         }
         
         $flattened = array();
-        foreach ($headers as $name => $value)
-        {
+        foreach ($headers as $name => $value) {
              $flattened[] = $name . ': ' . $value;
         }
         
