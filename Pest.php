@@ -169,6 +169,17 @@ class Pest
     }
     
     /**
+     * Determines if a given array is numerically indexed or not
+     *
+     * @param array $array
+     * @return boolean
+     */
+    protected function _isNumericallyIndexedArray($array)
+    {
+        return !(bool)count(array_filter(array_keys($array), 'is_string'));
+    }
+    
+    /**
      * Flatten headers from an associative array to a numerically indexed array of "Name: Value"
      * style entries like CURLOPT_HTTPHEADER expects. Numerically indexed arrays are not modified.
      *
@@ -177,8 +188,7 @@ class Pest
      */
     protected function prepHeaders($headers)
     {
-        // Skip if the array is already numerically indexed
-        if (!(bool)count(array_filter(array_keys($headers), 'is_string'))) {
+        if ($this->_isNumericallyIndexedArray($headers)) {
             return $headers;
         }
         
