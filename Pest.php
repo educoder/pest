@@ -17,7 +17,8 @@ class Pest
         CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
         CURLOPT_FOLLOWLOCATION => false, // follow redirects, Location: headers
         CURLOPT_MAXREDIRS => 10, // but dont redirect more than 10 times
-        CURLOPT_HTTPHEADER => array()
+        CURLOPT_HTTPHEADER => array(),
+        CURLOPT_HEADER => true, // return result with headers
     );
 
     /**
@@ -121,7 +122,7 @@ class Pest
         }
 
         $curl_opts = $this->curl_opts;
-        
+
         $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers);
 
         $curl = $this->prepRequest($curl_opts, $url);
@@ -167,7 +168,7 @@ class Pest
 
         return $curl;
     }
-    
+
     /**
      * Determines if a given array is numerically indexed or not
      *
@@ -178,7 +179,7 @@ class Pest
     {
         return !(bool)count(array_filter(array_keys($array), 'is_string'));
     }
-    
+
     /**
      * Flatten headers from an associative array to a numerically indexed array of "Name: Value"
      * style entries like CURLOPT_HTTPHEADER expects. Numerically indexed arrays are not modified.
@@ -191,12 +192,12 @@ class Pest
         if ($this->_isNumericallyIndexedArray($headers)) {
             return $headers;
         }
-        
+
         $flattened = array();
         foreach ($headers as $name => $value) {
              $flattened[] = $name . ': ' . $value;
         }
-        
+
         return $flattened;
     }
 
@@ -313,15 +314,24 @@ class Pest
 
     /**
      * Process body
+     *
+     * Extend this method in classes that extend Pest.
+     * The body of every GET/POST/PUT/DELETE response goes through
+     * here prior to being returned.
+     *
      * @param string $body
      * @return string
      */
     protected function processBody($body)
     {
-        // Override this in classes that extend Pest.
-        // The body of every GET/POST/PUT/DELETE response goes through
-        // here prior to being returned.
-        return $body;
+        // split body and headers
+        $split_curl_result = explode("\r\n\r\n", $body, 2);
+
+        $this->last_headers = $this->parse_http_headers($split_curl_result[0]);
+
+        $this->last_response["body"] = $split_curl_result[1];
+
+        return $this->last_response["body"];
     }
 
     /**
@@ -494,24 +504,38 @@ class Pest
      */
     public function lastHeader($header)
     {
-        if (empty($this->last_headers[strtolower($header)])) {
+        if (empty($this->last_headers[$header])) {
             return NULL;
         }
-        return $this->last_headers[strtolower($header)];
+        return $this->last_headers[$header];
     }
 
     /**
-     * Handle header
-     * @param $ch
-     * @param $str
-     * @return int
+     * Parse headers
+     *
+     * @param string $header
+     * @return array
      */
-    private function handle_header($ch, $str)
-    {
-        if (preg_match('/([^:]+):\s(.+)/m', $str, $match)) {
-            $this->last_headers[strtolower($match[1])] = trim($match[2]);
+    private function parse_http_headers($header) {
+        $retVal = array();
+        $fields = explode("\r\n", preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $header));
+        foreach( $fields as $field ) {
+            if( preg_match('/([^:]+): (.+)/m', $field, $match) ) {
+                $match[1] = preg_replace('/(?<=^|[\x09\x20\x2D])./e', 'strtoupper("\0")', strtolower(trim($match[1])));
+                if( isset($retVal[$match[1]]) ) {
+                    if ( is_array( $retVal[$match[1]] ) ) {
+                        $i = count($retVal[$match[1]]);
+                        $retVal[$match[1]][$i] = $match[2];
+                    }
+                    else {
+                        $retVal[$match[1]] = array($retVal[$match[1]], $match[2]);
+                    }
+                } else {
+                    $retVal[$match[1]] = trim($match[2]);
+                }
+            }
         }
-        return strlen($str);
+        return $retVal;
     }
 }
 
