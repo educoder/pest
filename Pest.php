@@ -224,10 +224,18 @@ class Pest
         $this->last_response = array();
 
         // curl_error() needs to be tested right after function failure
-        $this->last_response["body"] = curl_exec($curl);
-        if ($this->last_response["body"] === false && $this->throw_exceptions) {
+        $curl_request = curl_exec($curl);
+        if ($curl_request === false && $this->throw_exceptions) {
             throw new Pest_Curl_Exec(curl_error($curl));
         }
+
+        // split body and headers
+        $split_curl_result = explode("\r\n\r\n", $curl_request, 2);
+
+        $this->last_headers = $this->parse_http_headers($split_curl_result[0]);
+
+        $this->last_response["body"] = $split_curl_result[1];
+
 
         $this->last_response["meta"] = curl_getinfo($curl);
         if ($this->last_response["meta"] === false && $this->throw_exceptions) {
@@ -310,24 +318,15 @@ class Pest
 
     /**
      * Process body
-     *
-     * Extend this method in classes that extend Pest.
-     * The body of every GET/POST/PUT/DELETE response goes through
-     * here prior to being returned.
-     *
      * @param string $body
      * @return string
      */
     protected function processBody($body)
     {
-        // split body and headers
-        $split_curl_result = explode("\r\n\r\n", $body, 2);
-
-        $this->last_headers = $this->parse_http_headers($split_curl_result[0]);
-
-        $this->last_response["body"] = $split_curl_result[1];
-
-        return $this->last_response["body"];
+        // Override this in classes that extend Pest.
+        // The body of every GET/POST/PUT/DELETE response goes through
+        // here prior to being returned.
+        return $body;
     }
 
     /**
