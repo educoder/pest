@@ -67,10 +67,6 @@ class Pest
         }
 
         $this->base_url = $base_url;
-
-        // The callback to handle return headers
-        // Using PHP 5.2, it cannot be initialised in the static context
-        $this->curl_opts[CURLOPT_HEADERFUNCTION] = array($this, 'handle_header');
     }
 
     /**
