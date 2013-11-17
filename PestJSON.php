@@ -27,6 +27,8 @@ require_once 'Pest.php';
 
 class PestJSON extends Pest
 {
+    const JSON_ERROR_UNKNOWN = -100;
+
     /**
      * @var bool Throw exceptions on JSON encoding errors?
      */
@@ -69,8 +71,7 @@ class PestJSON extends Pest
     {
         $ret = json_encode($data);
 
-        if ($this->throwJsonExceptions
-                && json_last_error() !== JSON_ERROR_NONE) {
+        if ($ret === false && $this->throwJsonExceptions) {
             throw new Pest_Json_Encode(
                 'Encoding error: ' . $this->getLastJsonErrorMessage(),
                 $this->getLastJsonErrorCode()
@@ -92,8 +93,7 @@ class PestJSON extends Pest
     {
         $ret = json_decode($data, $asArray);
 
-        if ($this->throwJsonExceptions
-            && json_last_error() !== JSON_ERROR_NONE) {
+        if ($ret === false && $this->throwJsonExceptions) {
             throw new Pest_Json_Decode(
                 'Decoding error: ' . $this->getLastJsonErrorMessage(),
                 $this->getLastJsonErrorCode()
@@ -110,6 +110,11 @@ class PestJSON extends Pest
      */
     public function getLastJsonErrorMessage()
     {
+        // For PHP < 5.3, just return "Unknown"
+        if (!function_exists('json_last_error')) {
+            return "Unknown";
+        }
+
         // Use the newer JSON error message function if it exists
         if (function_exists('json_last_error_msg')) {
             return(json_last_error_msg());
@@ -148,6 +153,11 @@ class PestJSON extends Pest
      */
     public function getLastJsonErrorCode()
     {
+        // For PHP < 5.3, just return the PEST code for unknown errors
+        if (!function_exists('json_last_error')) {
+            return self::JSON_ERROR_UNKNOWN;
+        }
+
         return json_last_error();
     }
 
