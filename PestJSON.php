@@ -27,7 +27,7 @@ require_once 'Pest.php';
 
 class PestJSON extends Pest
 {
-    const JSON_ERROR_UNKNOWN = -100;
+    const JSON_ERROR_UNKNOWN = 1000;
 
     /**
      * @var bool Throw exceptions on JSON encoding errors?
