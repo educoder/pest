@@ -48,6 +48,19 @@ class PestJSON extends Pest
     }
 
     /**
+     * @param string $body
+     * @return string|void
+     * @throws PestJSON_Exception
+     */
+
+    public function processError($body){
+        $error = $this->jsonDecode($body);
+        $error = $error['errors'][0];
+
+        throw new PestJSON_Exception($error['message'], $error['code']);
+    }
+
+    /**
      * Perform HTTP PUT
      *
      * @param string $url
@@ -193,4 +206,7 @@ class Pest_Json_Decode extends Pest_ClientError
 
 /* encode */
 class Pest_Json_Encode extends Pest_ClientError
+{}
+
+class PestJSON_Exception extends Pest_Exception
 {}
