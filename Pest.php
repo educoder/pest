@@ -86,6 +86,32 @@ class Pest
     }
 
     /**
+     * Set cookies for this session
+     * @param array $cookies
+     *
+     * @see http://curl.haxx.se/docs/manpage.html
+     * @see http://www.nczonline.net/blog/2009/05/05/http-cookies-explained/
+     */
+    public function setupCookies($cookies)
+    {
+        if (empty($cookies)) {
+            return;
+        }
+        $cookie_list = array();
+        foreach ($cookies as $cookie_name => $cookie_value)
+        {
+            $cookie = urlencode($cookie_name);
+            if (isset($cookie_value))
+            {
+                $cookie .= '=';
+                $cookie .= urlencode($cookie_value);
+            }
+            $cookie_list[] = $cookie;
+        }
+        $this->curl_opts[CURLOPT_COOKIE] = implode(';', $cookie_list);
+    }
+
+    /**
      * Setup proxy
      * @param string $host
      * @param int $port
