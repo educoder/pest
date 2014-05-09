@@ -93,7 +93,7 @@ class PestJSON extends Pest
     {
         $ret = json_decode($data, $asArray);
 
-        if ($ret === false && $this->throwJsonExceptions) {
+        if ($ret === null && $this->hasJsonDecodeFailed() && $this->throwJsonExceptions) {
             throw new Pest_Json_Decode(
                 'Decoding error: ' . $this->getLastJsonErrorMessage(),
                 $this->getLastJsonErrorCode()
@@ -159,6 +159,20 @@ class PestJSON extends Pest
         }
 
         return json_last_error();
+    }
+
+    /**
+     * Check if decoding failed
+     * @return bool
+     */
+    private function hasJsonDecodeFailed()
+    {
+        // you cannot safely determine decode errors in PHP < 5.3
+        if (!function_exists('json_last_error')) {
+            return false;
+        }
+
+        return json_last_error() !== JSON_ERROR_NONE;
     }
 
     /**
