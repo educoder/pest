@@ -299,25 +299,25 @@ class Pest
         $err = null;
         switch ($meta['http_code']) {
             case 400:
-                throw new Pest_BadRequest($this->processError($body));
+                throw new Pest_BadRequest($this->processError($body), $meta['http_code']);
                 break;
             case 401:
-                throw new Pest_Unauthorized($this->processError($body));
+                throw new Pest_Unauthorized($this->processError($body), $meta['http_code']);
                 break;
             case 403:
-                throw new Pest_Forbidden($this->processError($body));
+                throw new Pest_Forbidden($this->processError($body), $meta['http_code']);
                 break;
             case 404:
-                throw new Pest_NotFound($this->processError($body));
+                throw new Pest_NotFound($this->processError($body), $meta['http_code']);
                 break;
             case 405:
-                throw new Pest_MethodNotAllowed($this->processError($body));
+                throw new Pest_MethodNotAllowed($this->processError($body), $meta['http_code']);
                 break;
             case 409:
-                throw new Pest_Conflict($this->processError($body));
+                throw new Pest_Conflict($this->processError($body), $meta['http_code']);
                 break;
             case 410:
-                throw new Pest_Gone($this->processError($body));
+                throw new Pest_Gone($this->processError($body), $meta['http_code']);
                 break;
             case 422:
                 // Unprocessable Entity -- see http://www.iana.org/assignments/http-status-codes
@@ -325,14 +325,15 @@ class Pest
                 // a response to a request that is syntactically correct,
                 // but semantically invalid (for example, when trying to
                 // create a resource with some required fields missing)
-                throw new Pest_InvalidRecord($this->processError($body));
+                throw new Pest_InvalidRecord($this->processError($body), $meta['http_code']);
                 break;
             default:
                 if ($meta['http_code'] >= 400 && $meta['http_code'] <= 499)
-                    throw new Pest_ClientError($this->processError($body));
+                    throw new Pest_ClientError($this->processError($body), $meta['http_code']);
                 elseif ($meta['http_code'] >= 500 && $meta['http_code'] <= 599)
-                    throw new Pest_ServerError($this->processError($body)); elseif (!isset($meta['http_code']) || $meta['http_code'] >= 600) {
-                    throw new Pest_UnknownResponse($this->processError($body));
+                    throw new Pest_ServerError($this->processError($body), $meta['http_code']);
+                elseif (!isset($meta['http_code']) || $meta['http_code'] >= 600) {
+                    throw new Pest_UnknownResponse($this->processError($body), $meta['http_code']);
                 }
         }
     }
