@@ -296,7 +296,6 @@ class Pest
         if ($meta === false)
             return;
 
-        $err = null;
         switch ($meta['http_code']) {
             case 400:
                 throw new Pest_BadRequest($this->processError($body));
