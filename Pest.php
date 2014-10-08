@@ -94,13 +94,12 @@ class Pest
      */
     public function setupClientCertificate($certificateFile, $privateKeyFile, $privateKeyPassword = null)
     {
-      $this->curl_opts[CURLOPT_SSLCERT] = $certificateFile;
-      $this->curl_opts[CURLOPT_SSLKEY] = $privateKeyFile;
-      
-      if(is_string($privateKeyPassword) && strlen($privateKeyPassword) > 0)
-      {
-        $this->curl_opts[CURLOPT_SSLKEYPASSWD] = $privateKeyPassword;
-      }
+        $this->curl_opts[CURLOPT_SSLCERT] = $certificateFile;
+        $this->curl_opts[CURLOPT_SSLKEY] = $privateKeyFile;      
+        if(is_string($privateKeyPassword) && strlen($privateKeyPassword) > 0)
+        {
+            $this->curl_opts[CURLOPT_SSLKEYPASSWD] = $privateKeyPassword;
+        }
     }
 
     /**
