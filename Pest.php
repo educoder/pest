@@ -84,6 +84,24 @@ class Pest
         $this->curl_opts[CURLOPT_HTTPAUTH] = constant('CURLAUTH_' . strtoupper($auth));
         $this->curl_opts[CURLOPT_USERPWD] = $user . ":" . $pass;
     }
+    
+    /**
+     * Setup client certificate
+     * 
+     * @param string $certificateFile
+     * @param string $privateKeyFile
+     * @param string $privateKeyPassword Optional
+     */
+    public function setupClientCertificate($certificateFile, $privateKeyFile, $privateKeyPassword = null)
+    {
+      $this->curl_opts[CURLOPT_SSLCERT] = $certificateFile;
+      $this->curl_opts[CURLOPT_SSLKEY] = $privateKeyFile;
+      
+      if(is_string($privateKeyPassword) && strlen($privateKeyPassword) > 0)
+      {
+        $this->curl_opts[CURLOPT_SSLKEYPASSWD] = $privateKeyPassword;
+      }
+    }
 
     /**
      * Set cookies for this session
