@@ -409,6 +409,10 @@ class Pest
                     $multipart = true;
                     break;
                 }
+                if (is_object($item) && (get_class($item) === 'CURLFile')) {
+                    $multipart = true;
+                    break;
+                }
             }
 
             return ($multipart) ? $data : http_build_query($data);
