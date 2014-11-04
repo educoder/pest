@@ -15,6 +15,7 @@ class Pest
     public $curl_opts = array(
         CURLOPT_RETURNTRANSFER => true, // return result instead of echoing
         CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
+        CURLOPT_SSL_VERIFYHOST => false, // stop cURL from verifying the peer's HOST
         CURLOPT_FOLLOWLOCATION => false, // follow redirects, Location: headers
         CURLOPT_MAXREDIRS => 10, // but dont redirect more than 10 times
         CURLOPT_HTTPHEADER => array()
@@ -408,6 +409,10 @@ class Pest
                     $multipart = true;
                     break;
                 }
+                if (is_object($item) && (get_class($item) === 'CURLFile')) {
+                    $multipart = true;
+                    break;
+                }
             }
 
             return ($multipart) ? $data : http_build_query($data);
@@ -537,6 +542,36 @@ class Pest
             $this->last_headers[strtolower($match[1])] = trim($match[2]);
         }
         return strlen($str);
+    }
+
+    /**
+     * Handle files
+     * @param $filename
+     * @param $postname
+     * @param $contentType
+     * @return CURLFile or String
+     */
+    public static function getFilenameValue($filename = '', $postname = '', $contentType = '') {
+        // PHP 5.5 introduced a CurlFile object that deprecates the old @filename syntax
+        // See: https://wiki.php.net/rfc/curl-file-upload
+        if (empty($filename)) {
+            throw Pest_Exception('Filename can not be empty', 10030);
+        }
+        if (empty($postname)) {
+            $postname = $filename;
+        }
+
+        if (function_exists('curl_file_create')) {
+            return curl_file_create($filename, $contentType, $postname);
+        }
+
+        // Use the old style if using an older version of PHP
+        $value = "@{$filename};filename=" . $postname;
+        if ($contentType) {
+            $value .= ';type=' . $contentType;
+        }
+
+        return $value;
     }
 }
 
