@@ -15,6 +15,7 @@ class Pest
     public $curl_opts = array(
         CURLOPT_RETURNTRANSFER => true, // return result instead of echoing
         CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
+        CURLOPT_SSL_VERIFYHOST => false, // stop cURL from verifying the peer's HOST
         CURLOPT_FOLLOWLOCATION => false, // follow redirects, Location: headers
         CURLOPT_MAXREDIRS => 10, // but dont redirect more than 10 times
         CURLOPT_HTTPHEADER => array()
