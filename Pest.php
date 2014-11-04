@@ -543,6 +543,36 @@ class Pest
         }
         return strlen($str);
     }
+
+    /**
+     * Handle files
+     * @param $filename
+     * @param $postname
+     * @param $contentType
+     * @return CURLFile or String
+     */
+    public static function getFilenameValue($filename = '', $postname = '', $contentType = '') {
+        // PHP 5.5 introduced a CurlFile object that deprecates the old @filename syntax
+        // See: https://wiki.php.net/rfc/curl-file-upload
+        if (empty($filename)) {
+            throw Pest_Exception('Filename can not be empty', 10030);
+        }
+        if (empty($postname)) {
+            $postname = $filename;
+        }
+
+        if (function_exists('curl_file_create')) {
+            return curl_file_create($filename, $contentType, $postname);
+        }
+
+        // Use the old style if using an older version of PHP
+        $value = "@{$filename};filename=" . $postname;
+        if ($contentType) {
+            $value .= ';type=' . $contentType;
+        }
+
+        return $value;
+    }
 }
 
 class Pest_Exception extends Exception
