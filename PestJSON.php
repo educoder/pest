@@ -130,19 +130,14 @@ class PestJSON extends Pest
         switch ($lastError) {
             case JSON_ERROR_DEPTH:
                 return 'Maximum stack depth exceeded';
-                break;
             case JSON_ERROR_STATE_MISMATCH:
                 return 'Underflow or the modes mismatch';
-                break;
             case JSON_ERROR_CTRL_CHAR:
                 return 'Unexpected control character found';
-                break;
             case JSON_ERROR_SYNTAX:
                 return 'Syntax error, malformed JSON';
-                break;
             default:
                 return 'Unknown';
-                break;
         }
     }
 
