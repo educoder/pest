@@ -296,7 +296,6 @@ class Pest
         if ($meta === false)
             return;
 
-        $err = null;
         switch ($meta['http_code']) {
             case 400:
                 throw new Pest_BadRequest($this->processError($body), $meta['http_code']);
@@ -361,7 +360,7 @@ class Pest
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_NOBODY] = true;
 
-        $curl = $this->prepRequest($this->curl_opts, $url);
+        $curl = $this->prepRequest($curl_opts, $url);
         $body = $this->doRequest($curl);
 
         $body = $this->processBody($body);
