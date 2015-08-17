@@ -127,6 +127,15 @@ class Pest
             $this->curl_opts[CURLOPT_PROXYUSERPWD] = $user . ":" . $pass;
         }
     }
+    
+    /**
+	 * Allow overriding of `http_build_query()` for idiosyncratic APIs
+	 * @param mixed $data
+	 * @return string
+	 **/
+    protected function http_build_query($data) {
+	    return http_build_query($data);
+    }
 
     /**
      * Perform HTTP GET request
@@ -143,7 +152,7 @@ class Pest
             if ($pos !== false) {
                 $url = substr($url, 0, $pos);
             }
-            $url .= '?' . http_build_query($data);
+            $url .= '?' . $this->http_build_query($data);
         }
 
         $curl_opts = $this->curl_opts;
@@ -410,7 +419,7 @@ class Pest
                 }
             }
 
-            return ($multipart) ? $data : http_build_query($data);
+            return ($multipart) ? $data : $this->http_build_query($data);
         } else {
             return $data;
         }
@@ -452,7 +461,7 @@ class Pest
      */
     public function patch($url, $data, $headers = array())
     {
-        $data = (is_array($data)) ? http_build_query($data) : $data;
+        $data = (is_array($data)) ? $this->http_build_query($data) : $data;
 
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PATCH';
