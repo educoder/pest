@@ -62,7 +62,7 @@ class Pest
          * not in use
          */
         if (ini_get('open_basedir') == '' && strtolower(ini_get('safe_mode')) == 'off') {
-            $this->curl_opts['CURLOPT_FOLLOWLOCATION'] = true;
+            $this->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
         }
 
         $this->base_url = $base_url;
