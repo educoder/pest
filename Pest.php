@@ -202,7 +202,7 @@ class Pest
      */
     protected function _isNumericallyIndexedArray($array)
     {
-        return !(bool)count(array_filter(array_keys($array), 'is_string'));
+        return !(bool)(count(array_filter(array_keys($array), 'is_string')) === 0);
     }
     
     /**
