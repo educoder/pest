@@ -229,7 +229,7 @@ class Pest
              $flattened[] = $name . ': ' . $value;
         }
         
-        if ($content_length && array_key_exists('Content-Length', $headers))
+        if ($content_length && !array_key_exists('Content-Length', $headers))
             $headers[] = 'Content-Length:' . $content_length;
         
         return $flattened;
