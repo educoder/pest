@@ -218,7 +218,7 @@ class Pest
     protected function prepHeaders($headers, $content_length = null)
     {
         if ($this->_isNumericallyIndexedArray($headers)) {
-            if ($content_length && strpos(strtolower($headers), 'content-length') === false)
+            if ($content_length && array_search('content-length', array_map('strtolower', $headers)) === false)
                 $headers['Content-Length'] = $content_length;
             
             return $headers;
