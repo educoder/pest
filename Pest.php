@@ -387,11 +387,12 @@ class Pest
     public function post($url, $data, $headers = array())
     {
         $data = $this->prepData($data);
+        $length = null;
 
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_CUSTOMREQUEST] = 'POST';
-        if (!is_array($data)) $this->prepHeaders($headers, strlen($data));
-        $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers);
+        if (!is_array($data)) $length = strlen($data);
+        $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers, $length);
         $curl_opts[CURLOPT_POSTFIELDS] = $data;
 
         $curl = $this->prepRequest($curl_opts, $url);
@@ -436,11 +437,12 @@ class Pest
     public function put($url, $data, $headers = array())
     {
         $data = $this->prepData($data);
+        $length = null;
 
         $curl_opts = $this->curl_opts;
         $curl_opts[CURLOPT_CUSTOMREQUEST] = 'PUT';
-        if (!is_array($data)) $headers[] = $this->prepHeaders($headers, strlen($data));
-        $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers);
+        if (!is_array($data)) $length = strlen($data);
+        $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers, $length);
         $curl_opts[CURLOPT_POSTFIELDS] = $data;
 
         $curl = $this->prepRequest($curl_opts, $url);
