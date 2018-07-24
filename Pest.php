@@ -188,6 +188,9 @@ class Pest
         else
             $this->last_request['method'] = 'GET';
 
+        if (isset($opts[CURLOPT_HTTPHEADER]))
+            $this->last_request['header'] = $opts[CURLOPT_HTTPHEADER];
+
         if (isset($opts[CURLOPT_POSTFIELDS]))
             $this->last_request['data'] = $opts[CURLOPT_POSTFIELDS];
 
