@@ -14,7 +14,6 @@ class Pest
      */
     public $curl_opts = array(
         CURLOPT_RETURNTRANSFER => true, // return result instead of echoing
-        CURLOPT_SSL_VERIFYPEER => false, // stop cURL from verifying the peer's certificate
         CURLOPT_FOLLOWLOCATION => false, // follow redirects, Location: headers
         CURLOPT_MAXREDIRS => 10, // but dont redirect more than 10 times
         CURLOPT_HTTPHEADER => array()
@@ -49,13 +48,20 @@ class Pest
     /**
      * Class constructor
      * @param string $base_url
+     * @param array $curl_opts
      * @throws Exception
      */
-    public function __construct($base_url)
+    public function __construct($base_url, $curl_opts = array())
     {
         if (!function_exists('curl_init')) {
             throw new Exception('CURL module not available! Pest requires CURL. See http://php.net/manual/en/book.curl.php');
         }
+
+        /*
+         * Mash the passed-in cURL options in ours. The passed-in values will
+         * override our defaults.
+         */
+        $this->curl_opts = $curl_opts + $this->curl_opts;
 
         /*
          * Only enable CURLOPT_FOLLOWLOCATION if safe_mode and open_base_dir are
@@ -147,7 +153,7 @@ class Pest
         }
 
         $curl_opts = $this->curl_opts;
-        
+
         $curl_opts[CURLOPT_HTTPHEADER] = $this->prepHeaders($headers);
 
         $curl = $this->prepRequest($curl_opts, $url);
@@ -193,7 +199,7 @@ class Pest
 
         return $curl;
     }
-    
+
     /**
      * Determines if a given array is numerically indexed or not
      *
@@ -204,7 +210,7 @@ class Pest
     {
         return !(bool)count(array_filter(array_keys($array), 'is_string'));
     }
-    
+
     /**
      * Flatten headers from an associative array to a numerically indexed array of "Name: Value"
      * style entries like CURLOPT_HTTPHEADER expects. Numerically indexed arrays are not modified.
@@ -217,12 +223,12 @@ class Pest
         if ($this->_isNumericallyIndexedArray($headers)) {
             return $headers;
         }
-        
+
         $flattened = array();
         foreach ($headers as $name => $value) {
              $flattened[] = $name . ': ' . $value;
         }
-        
+
         return $flattened;
     }
 
